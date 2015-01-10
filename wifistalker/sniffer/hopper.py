@@ -1,8 +1,11 @@
 import os
+import sys
+from collections import defaultdict
 from time import time, sleep
 
 from wifistalker import pythonwifi
-from collections import defaultdict
+
+from wifistalker import config
 
 
 class Hopper(object):
@@ -18,7 +21,7 @@ class Hopper(object):
         self.reset_interface()
 
         self.tries = 20
-        self.max_karma = 5
+        self.config = config.hopper
 
     def __del__(self):
         del self.wifi
@@ -33,7 +36,7 @@ class Hopper(object):
         self.wifi = pythonwifi.Wireless(self.base_interface)
 
 
-    def config(self, use_24=True, use_pop5=False):
+    def configure(self, use_24=True, use_pop5=False):
         # TODO: Optimize? Fix - add rest, + 5GHz option
 
         self.freqs = {
@@ -50,6 +53,11 @@ class Hopper(object):
             11: '2.462GHz',
             12: '2.467GHz',
             13: '2.472GHz',
+
+            30: '5.180GHz',
+            40: '5.200GHz',
+            44: '5.220GHz',
+            48: '5.240GHz',
             #(14, '2.484 Ghz'), # 14
         }
 
@@ -69,7 +77,13 @@ class Hopper(object):
         if use_pop5:
             self.channels += self.channels_5pop
 
+        if not self.channels:
+            print "ERROR: No channels selected for hopping"
+            return False
+
         self.hop_failures = defaultdict(lambda: 0)
+        self.hop_total = 0
+        self.swipes_total = 0
 
         self.channel_idx = 0
         self.channel_number = -1 # Not yet known in fact
@@ -78,10 +92,11 @@ class Hopper(object):
         self.channel_inc = 0
         self.took = 0
         self.channel_swipe_start = time()
+        return True
 
     def increase_karma(self):
         "Current channel is nice - stay here longer"
-        if self.channel_inc > self.max_karma:
+        if self.channel_inc > self.config['max_karma']:
             return
         self.channel_karma += 1
         self.channel_inc += 1
@@ -100,13 +115,14 @@ class Hopper(object):
 
         if self.channel_idx == 0:
             took = time() - self.channel_swipe_start
-            print 'Channel swipe done in %.2f[s]' % took
+            self.swipes_total += 1
             self.channel_swipe_start = time()
 
 
         for i in range(0, self.tries):
             try:
                 self.wifi.setFrequency(freq)
+                self.hop_total += 1
                 return True
             except IOError:
                 self.log.info('Try {0}: Channel hopping failed (f={1} ch={2})', i+1, freq, self.channel_number)

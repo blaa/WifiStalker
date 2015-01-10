@@ -7,9 +7,9 @@ Entry point for WifiStalker tool.
 try:
     from wifistalker import main
 except ImportError:
-    print "Unable to find wifipython module - make sure it's installed"
-    print "in your site-packages/dist-packages directories or available at"
-    print "PYTHONPATH environment"
+    print "Unable to find and import the `wifistalker' module - make sure it's"
+    print "installed in your site-packages/dist-packages directories or available"
+    print "at PYTHONPATH environment"
     print
     raise
 

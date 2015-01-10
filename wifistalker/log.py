@@ -1,4 +1,3 @@
-from wifistalker.model import db
 
 class Log(object):
     """Tiny mongodb/console logging
@@ -10,6 +9,7 @@ class Log(object):
         self.db = db
         self.use_stdout = use_stdout
         self.header = header
+        print "CREATE"
 
     def _format(self, msg, level, *args, **kwargs):
         final = []
@@ -29,7 +29,7 @@ class Log(object):
         msg = self._format(msg, level, *args, **kwargs)
 
         if self.db:
-            db.add_log(msg)
+            self.db.log_add(msg)
 
         if self.use_stdout:
             print msg
