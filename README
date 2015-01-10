@@ -72,9 +72,13 @@
 
 ** Concept
    Sniffed data can be split into mobile (mostly) client devices and
-   background - beacons.
+   background - beacons. Beacons create context which is usable to
+   determining location
 
-   
+
+* LICENSE
+  Backend is licensed under GNU GPLv2 - mostly because it uses GPLv2
+  Scapy. Frontend license might vary, it will probably be MIT.
 
 * TODOs / Plan:
 ** TODO Cleanup code, publish on github, add license

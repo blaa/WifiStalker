@@ -1,3 +1,6 @@
+# Author: Tomasz bla Fortuna
+# License: GPLv2
+
 import sys
 import os
 import config
@@ -39,6 +42,10 @@ def _parse_arguments():
                      action="store", type=str, metavar="CSV_PATH",
                      help="load geolocational file")
 
+    act.add_argument("--version", dest="version",
+                     action="store_true",
+                     help="show version/license info")
+
     p.add_argument("-i", "--interface", dest="interface",
                    action="store", type=str, default="mon0",
                    help="interface")
@@ -75,7 +82,6 @@ def _parse_arguments():
 
 
     args = p.parse_args()
-    print "PARSED"
     return p, args
 
 
@@ -109,6 +115,16 @@ def action_geo_load(db, args):
     import geoloc
     geoloc.run(args.geo_load)
 
+def action_version(args):
+    "Show version/license info"
+    print (
+        "WifiStalker\n"
+        "Curent version:   {0}\n"
+        "Project author:   Tomasz bla Fortuna\n"
+        "Backend license:  Gnu General Public License version 2\n"
+        "Frontend license: "
+    ).format(config.version),
+
 def init_db(args):
     "Open DB connection"
     db = model.DB(db_conn=args.db_conn, db_name=args.db_name)
@@ -118,17 +134,20 @@ def run():
     "Run WifiStalker"
     parser, args = _parse_arguments()
 
-    db = init_db(args)
 
     if args.sniff:
+        db = init_db(args)
         action_sniff(db, args)
     elif args.analyze:
+        db = init_db(args)
         action_analyze(db, args)
     elif args.webapp:
-        action_webapp(db, args)
-    elif args.webapp:
+        db = init_db(args)
         action_webapp(db, args)
     elif args.geo_load:
+        db = init_db(args)
         action_geo_load(db, args)
+    elif args.version:
+        action_version(args)
     else:
         parser.print_help()

@@ -1,3 +1,6 @@
+# Author: Tomasz bla Fortuna
+# License: GPLv2
+
 import re
 from time import time
 import datetime

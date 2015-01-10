@@ -1,3 +1,6 @@
+# Author: Tomasz bla Fortuna
+# License: GPLv2
+
 import os
 import sys
 from collections import defaultdict

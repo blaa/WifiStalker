@@ -1,3 +1,5 @@
+# Author: Tomasz bla Fortuna
+# License: GPLv2
 
 class Frames(object):
     "Low-level frame data model - object keeps sniffed pkts metadata"

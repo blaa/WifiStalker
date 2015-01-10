@@ -1,3 +1,5 @@
+# Author: Tomasz bla Fortuna
+# License: GPLv2
 
 class Log(object):
     """Tiny mongodb/console logging
