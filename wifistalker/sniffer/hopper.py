@@ -23,7 +23,7 @@ class Hopper(object):
         self.wifi = None
         self.reset_interface()
 
-        self.tries = 20
+        self.tries = 10
         self.config = config.hopper
 
     def __del__(self):
@@ -57,7 +57,7 @@ class Hopper(object):
             12: '2.467GHz',
             13: '2.472GHz',
 
-            30: '5.180GHz',
+            36: '5.180GHz',
             40: '5.200GHz',
             44: '5.220GHz',
             48: '5.240GHz',
@@ -121,19 +121,23 @@ class Hopper(object):
             self.swipes_total += 1
             self.channel_swipe_start = time()
 
-
+        # Tries must fit within watchdog limit.
         for i in range(0, self.tries):
             try:
                 self.wifi.setFrequency(freq)
                 self.hop_total += 1
                 return True
             except IOError:
-                self.log.info('Try {0}: Channel hopping failed (f={1} ch={2})', i+1, freq, self.channel_number)
+                self.log.info('Try {0}/{1}: Channel hopping failed (f={1} ch={2})', i+1, self.tries,
+                              freq, self.channel_number)
                 self.hop_failures[self.channel_number] += 1
                 self.reset_interface()
-                sleep(i)
+                sleep(0.8)
 
-        db.log('Failure after %d failed hopping tries' % i)
+        self.log.info('Failure after %d failed hopping tries' % i)
+        if self.related_interface is None:
+            self.log.info('Try setting related interface')
+
         return False
 
 

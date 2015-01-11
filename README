@@ -1,31 +1,44 @@
 # -*- mode: org coding: utf-8 -*-
+* Wording
+  Trying to name things:
+
+  Sender / Host - any 802.11 transmitter
+  Client - wifi client, probably a mobile device, also: Station
+  AP - access point
+  Knowledge - aggregated information on Senders.
+  Event - seeing a client on the ether for a period of time.
+
 * Features
 ** Sniffer
    Separate process sniffing metadata from Wifi packets and storing
    them in MongoDB backend. Can use multiple sniffers with the same
    backends each with differently tagged location.
 
-   TODO: Location needs better handling in GUI
+   Gathers metadata from radiotap (strength, source, destination),
+   Dot11, Dot11Elt frames (probe request, response, beacons) and for
+   not encrypted packets from IP/TCP/UDP frames (source, destination,
+   protocol, DNS queries) - for a highlevel aggregation can certainly
+   be improved.
 
 ** Analyzer
    Parses packets stored in the collection by sniffers and updates
-   `knowledge' about access points (AP) and clients - senders.
+   the `knowledge' about access points (AP) and clients - senders.
 
    Knowledge consists of:
-   - user supllied metadata (alias, owner, TODO: notes)
+   - user supllied metadata (alias, owner, notes)
    - simple statistics, first seen, last seen metadata
    - device vendor from MAC database
    - Recent signal strength reading (running average)
    - Probed SSIDs
    - Beaconed SSIDs
    - AP geolocation data using openwlan database
-   - `Seeings' - when seen, TODO: Needs better handling
+   - `Events' - when host was seen, TODO: Needs better handling
 
 ** Web interface
    - Clickable, interactive web application created with AngularJS,
      Bootstrap and other - ChartJS.
    - Observing surroundings within specified time window (10s - 24h)
-   - Creating presence snapshots - currently seen clients (within time
+   - Creating presence snapshots - currently present clients (within time
      window) on the context of surrounding APs.
    - Investigating details about each sniffed node.
 
@@ -75,6 +88,9 @@
    background - beacons. Beacons create context which is usable to
    determining location
 
+** Reasons to write
+   Learning AngularJS and Bootstrap. Curiosity. Extending home alarm
+   with a wifi-based monitoring against a common robbery.
 
 * LICENSE
   Backend is licensed under GNU GPLv2 - mostly because it uses GPLv2
@@ -90,6 +106,7 @@
     Aggregating beacons is simple, when sniffing for a client packet
     prelong a visit on a specified channel to sniff more of client
     communication - because of power savings those happen in bursts.
+*** TODO I like using timestamps but datetime would probably be better.
 ** Timetable / knowledge book
 *** TODO ESSID tab - all clients calling this essid.
 *** TODO Viewing and comparison of presence snapshots, existance in a presence dump
@@ -120,8 +137,10 @@
 *** Idea: Allow to mark specified time range as a sniffing in a particular location
     Then - automatically mark all bssids as located within this
     localization (home, work, tram, shop)
-*** TODO `Seen' knowledge should contain a context - visible BSSID during seeing.
-*** TODO Fix `seen' algorithm - nice parametrized filtering.
+*** TODO `event/Seen' knowledge should contain a context - visible BSSID during seeing.
+*** TODO Fix `event/seen' algorithm - nice parametrized filtering.
+*** TODO Events should contain stamp of highest signal strength.
+*** TODO If more time passed than current_frames keep - use all_frames for initialization automatically
 
 ** Map
 *** Map image changing / location changing.
@@ -131,5 +150,4 @@
 
 ** Logs
 *** Display controller on all views on the navbar
-
 

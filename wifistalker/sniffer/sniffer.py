@@ -49,7 +49,7 @@ class Sniffer(object):
         config.conf.sniff_promisc = 0
         self.log.info("Promiscuous mode disabled")
 
-        self.watchdog = WatchDog()
+        self.watchdog = WatchDog(interval=20)
 
 
     def _iface_exists(self, iface_name):
@@ -111,7 +111,8 @@ class Sniffer(object):
                 stat_prev = now
 
             if self.enable_hopping:
-                self.hopper.karmic_hop()
-
+                ret = self.hopper.karmic_hop()
+                if ret is False:
+                    breako
 
             self.watchdog.dontkillmeplease()

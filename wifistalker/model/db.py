@@ -8,6 +8,7 @@ import datetime
 from frames import Frames
 from knowledge import Knowledge
 from map import Map
+from geo import Geo
 
 class DB(object):
     "Link to MongoDB + model factory"
@@ -23,6 +24,8 @@ class DB(object):
         self.knowledge = Knowledge(self)
         self.frames = Frames(self)
         self.map = Map(self)
+        self.geo = Geo(self)
+
 
         # Log collection
         self._log = self['log']

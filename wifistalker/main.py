@@ -14,6 +14,7 @@ try:
     faulthandler.enable()
     faulthandler.register(signal.SIGUSR1)
 except ImportError:
+    print "(no faulthandler)"
     pass
 
 
@@ -23,6 +24,8 @@ def _parse_arguments():
 
     p = argparse.ArgumentParser(description='wifistalker')
     act = p.add_argument_group('actions')
+
+    # TODO: Maybe 3 subparsers would be best.
 
     # Actions - mutually exclusive
     act.add_argument("-s", "--sniff", dest="sniff",
@@ -37,6 +40,9 @@ def _parse_arguments():
                      action="store_true",
                      help="run webapp thread")
 
+    act.add_argument("--re-analyze", dest="re_analyze",
+                     action="store_true",
+                     help="drop all knowledge and reanalyze")
 
     act.add_argument("--load-geo", dest="geo_load",
                      action="store", type=str, metavar="CSV_PATH",
@@ -101,8 +107,13 @@ def action_sniff(db, args):
 def action_analyze(db, args):
     "Run Analyzing thread"
     from analyzer import Analyzer
-    analyzer = Analyzer()
-    analyzer.run()
+    analyzer = Analyzer(db)
+
+    if args.re_analyze:
+        analyzer.re_analyze()
+    else:
+        analyzer.run()
+
 
 def action_webapp(db, args):
     "Run webapp thread"
@@ -141,6 +152,10 @@ def run():
     elif args.analyze:
         db = init_db(args)
         action_analyze(db, args)
+    elif args.re_analyze:
+        db = init_db(args)
+        action_analyze(db, args)
+        
     elif args.webapp:
         db = init_db(args)
         action_webapp(db, args)
