@@ -119,6 +119,7 @@
 **** TODO Add time range for strength chart
 **** TODO Add refresh button
 **** TODO Add graph display of relations.
+*** Splitting aggregated data and user data would render optimistic locking not needed.
 ** Marauder's Map
 *** Allow selecting BSSID in Map view and then placing it on map.
 *** Localization services for map.

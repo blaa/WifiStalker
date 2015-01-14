@@ -10,6 +10,8 @@ from knowledge import Knowledge
 from map import Map
 from geo import Geo
 
+
+
 class DB(object):
     "Link to MongoDB + model factory"
 
@@ -26,6 +28,10 @@ class DB(object):
         self.map = Map(self)
         self.geo = Geo(self)
 
+        # Logging
+        from wifistalker import Log
+        header = 'DB'
+        self.log = Log(self, use_stdout=True, header=header)
 
         # Log collection
         self._log = self['log']

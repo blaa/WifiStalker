@@ -40,7 +40,7 @@ def _parse_arguments():
                      action="store_true",
                      help="run webapp thread")
 
-    act.add_argument("--re-analyze", dest="re_analyze",
+    act.add_argument("--analyze-full", dest="analyze_full",
                      action="store_true",
                      help="drop all knowledge and reanalyze")
 
@@ -109,10 +109,10 @@ def action_analyze(db, args):
     from analyzer import Analyzer
     analyzer = Analyzer(db)
 
-    if args.re_analyze:
-        analyzer.re_analyze()
+    if args.analyze_full:
+        analyzer.run_full()
     else:
-        analyzer.run()
+        analyzer.run_continuous()
 
 
 def action_webapp(db, args):
@@ -152,7 +152,7 @@ def run():
     elif args.analyze:
         db = init_db(args)
         action_analyze(db, args)
-    elif args.re_analyze:
+    elif args.analyze_full:
         db = init_db(args)
         action_analyze(db, args)
         

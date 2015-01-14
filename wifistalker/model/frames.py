@@ -56,18 +56,18 @@ class Frames(object):
         if not cache:
             self.beacons[key] = {
                 'stamp': frame['stamp'],
-                'stored_str': frame['str'],
-                'avg_str': frame['str'],
+                'stored_str': frame['strength'],
+                'avg_str': frame['strength'],
             }
             return True
 
         def update_cache():
-            cache['stored_str'] = frame['str']
+            cache['stored_str'] = frame['strength']
             cache['stamp'] = frame['stamp']
             self.beacons_stored += 1
 
         # Update str
-        cache['avg_str'] = (cache['avg_str'] * 5.0 + frame['str']) / 6.0
+        cache['avg_str'] = (cache['avg_str'] * 5.0 + frame['strength']) / 6.0
 
         if abs(cache['avg_str'] - cache['stored_str']) > cfg['max_str_dev']:
             update_cache()
@@ -95,10 +95,9 @@ class Frames(object):
 
         # Print filter stats
         if self.frames_checked % 100 == 0:
-            self.db.log("Beacon filter: omitted=%d stored=%d checked=%d cache_size=%d",
-                        self.beacons_omitted, self.beacons_stored, self.frames_checked,
-                        len(self.beacons))
-
+            self.db.log.info("Beacon filter: omitted={0} stored={1} checked={2} cache_size={3}",
+                             self.beacons_omitted, self.beacons_stored, self.frames_checked,
+                             len(self.beacons))
 
     ##
     # Querying
@@ -112,9 +111,13 @@ class Frames(object):
         where = {}
         if since is not None:
             where['stamp'] = {'$gt': since}
-        if src is not None:
-            src = src.lower()
-            where['src'] = {'src': src}
+        if src:
+            if isinstance(src, list):
+                src = [s.lower() for s in src]
+                where['src'] = {'src': {'$in': src}}
+            else:
+                src = src.lower()
+                where['src'] = {'src': src}
 
         frames = self.all_frames.find(where).sort('stamp', 1)
         for frame in frames:

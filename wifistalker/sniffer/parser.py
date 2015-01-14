@@ -123,11 +123,11 @@ class PacketParser(object):
             p = p.payload
 
             if type(p) == Dot11Beacon:
-                essid = p.info
-                assert p.len == len(essid)
-                if data['essid'] != None:
-                    self.log.info("ESSID wasn't None before setting new value ({0} - {1})" % (data['essid'], essid))
-                data['essid'] = self._sanitize(essid)
+                ssid = p.info
+                assert p.len == len(ssid)
+                if data['ssid'] != None:
+                    self.log.info("SSID wasn't None before setting new value ({0} - {1})" % (data['ssid'], ssid))
+                data['ssid'] = self._sanitize(ssid)
                 continue
 
             if type(p) != Dot11Elt:
@@ -137,14 +137,14 @@ class PacketParser(object):
                 if found_vendor:
                     continue # After vendor, there are dragons
 
-                essid = p.info
-                if p.len != len(essid):
-                    if data['essid'] is None:
-                        print "  Ignoring essid, wrong length", essid, d_type, d_subtype, "LEN IS/GIVEN", len(essid), p.len
+                ssid = p.info
+                if p.len != len(ssid):
+                    if data['ssid'] is None:
+                        print "  Ignoring ssid, wrong length", ssid, d_type, d_subtype, "LEN IS/GIVEN", len(ssid), p.len
                     continue
-                if essid and data['essid'] is None:
-                    essid = self._sanitize(essid)
-                    data['essid'] = essid
+                if ssid and data['ssid'] is None:
+                    ssid = self._sanitize(ssid)
+                    data['ssid'] = ssid
 
             elif p.ID == ELT_DIRECT_SPECTRUM:
                 if found_vendor:
@@ -175,7 +175,7 @@ class PacketParser(object):
 
 
     def _sanitize(self, s):
-        "Parse ESSID fields"
+        "Parse SSID fields"
         try:
             x = s.decode('utf-8')
         except:
@@ -231,7 +231,7 @@ class PacketParser(object):
             'broadcast': broadcast,
 
             # Defaults for dot11 parsing
-            'essid': None,
+            'ssid': None,
             'channel': None,
             'tags': set(),
         }
