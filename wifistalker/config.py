@@ -23,7 +23,7 @@ beacon_filter = {
     # Run cleanup process on cache every x seconds
     'cleanup_interval': 10 * 60,
     # include a packet if an averaged strength deviates by more than X from last stored frame
-    'max_str_dev': 10,
+    'max_str_dev': 5,
     # Include at least one per X seconds
-    'max_time_between': 5 * 60,
+    'max_time_between': 2 * 60,
 }

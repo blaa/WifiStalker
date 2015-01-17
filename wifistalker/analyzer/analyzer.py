@@ -35,8 +35,6 @@ class Analyzer(object):
 
         tags = set(frame['tags'])
 
-        #print "ADDING FRAME", frame, "TO", sender
-
         aggregate = sender.aggregate # Alias
         stat = sender.stat # Alias
 
@@ -122,16 +120,19 @@ class Analyzer(object):
                                                  since=since,
                                                  src=only_src_macs)
             # Go throught the iterator
-            for i, frame in enumerate(iterator):
+            cnt = 0
+            for cnt, frame in enumerate(iterator):
                 src = frame['src']
                 sender = self.sender_cache.get(src)
                 if sender is None:
                     sender = self.sender_cache.create(src)
                 self._analyze_frame(sender, frame)
                 last_stamp = frame['stamp']
-                if (i+1) % 10000 == 0:
-                    print "Done {0} frames, last stamp is {1}; {2}".format(i, last_stamp, self.stats)
+                if (cnt+1) % 10000 == 0:
+                    print "Done {0} frames, last stamp is {1};".format(cnt, last_stamp)
                     self.watchdog.dontkillmeplease()
+            s = "Analyzed {0} frames, last stamp is {1}; {2[analyzed]}/{2[already_analyzed]}"
+            print s.format(cnt, last_stamp, self.stats)
 
             if last_stamp is None:
                 # No frames whatsoever
@@ -156,7 +157,7 @@ class Analyzer(object):
         print 'Dropping existing knowledge in...'
         for i in range(3, 0, -1):
             print i, "second/s"
-            sleep(1)
+            sleep(5)
         self.db.knowledge.sender_drop()
 
         # Once
@@ -181,6 +182,7 @@ class Analyzer(object):
                 self.log.info('Waiting for frames')
 
                 sleep(1)
+                self.watchdog.dontkillmeplease()
                 continue
 
             since = new_since
@@ -213,43 +215,6 @@ class Analyzer(object):
                 sender.add_position(lat, lon)
 
 
-    def _get_updated_senders(self, frames, ignore_macs=set()):
-        "Update senders with frames - don't save them"
-
-        raise Exception()
-
-        updated_senders = {}
-        new = 0
-        frames_cnt = 0
-        for frame in frames:
-            mac = frame['src']
-            frames_cnt += 1
-            if mac in ignore_macs:
-                continue
-
-            if mac in updated_senders:
-                # Get from cache
-                sender = updated_senders[mac]
-            else:
-                # Get from DB
-                sender = db.get_sender(mac)
-                # Create new
-                if sender is None:
-                    print "NEW FOR", mac
-                    sender = Sender()
-                    sender.new(mac)
-                    new += 1
-                else:
-                    sender['version'] += 1
-
-            updated_senders[mac] = sender
-            self._update_using_frame(sender, frame)
-        msg = 'Knowledge <- %d frames, %d senders, %d new (%d ignored)' % (
-            frames_cnt, len(updated_senders), new, len(ignore_macs)
-        )
-        print msg
-        return updated_senders
-
     def _one_time_update(self):
         raise Exception()
 
@@ -261,25 +226,3 @@ class Analyzer(object):
             ret = db.set_sender(sender)
         print "One time update finished", len(senders)
 
-    def update_knowledge(self, frames):
-        raise Exception()
-        macs_updated = set()
-        opti_failed = 1
-        while opti_failed != 0:
-            # Get senders and update them
-            updated = self._get_updated_senders(frames,
-                                                ignore_macs=macs_updated)
-            self._update_geo(updated)
-
-            # Try to store senders - handle optimistic locking
-            opti_failed = 0
-            for mac, sender in updated.iteritems():
-                sender.short_seeings()
-                ret = db.set_sender(sender)
-                if ret == True:
-                    macs_updated.add(mac)
-                else:
-                    msg = "Optimistic lock failed on %s" % mac
-                    opti_failed += 1
-                    self.log.info(msg)
-                    print msg

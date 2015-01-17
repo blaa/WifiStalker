@@ -5,13 +5,13 @@ class Log(object):
     """Tiny mongodb/console logging
 
     TODO: Could be rewritten to use logging module with mongodb backend.
+    But then it's not possible to use .format() to which I'm trying to get accustomed I guess.
     """
 
     def __init__(self, db, use_stdout=False, header=None):
         self.db = db
         self.use_stdout = use_stdout
         self.header = header
-        print "CREATE"
 
     def _format(self, msg, level, *args, **kwargs):
         final = []

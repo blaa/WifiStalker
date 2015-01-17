@@ -202,7 +202,8 @@ class SenderCache(object):
                 self.cache.pop(mac)
             else:
                 correct += 1
-        print "Stored sender cache. correct={0} failed={1}".format(correct, len(failed))
+        if failed:
+            print "Stored sender cache. correct={0} failed={1}".format(correct, len(failed))
         return failed
 
     def __repr__(self):

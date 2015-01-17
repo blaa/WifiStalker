@@ -25,9 +25,9 @@ class Frames(object):
         self.current_frames.ensure_index('stamp')
         self.current_frames.ensure_index('mac')
 
-        # Data for beacon filter; (mac, essid) -> {last seen stamp, last stored str, cur averaged str}
+        # Data for beacon filter; (mac, ssid) -> {last seen stamp, last stored str, cur averaged str}
         self.beacons = {}
-        self.last_cleanup = 0
+        self.last_cleanup = time()
         self.beacons_omitted = 0
         self.beacons_stored = 0
         self.frames_checked = 0
@@ -44,14 +44,14 @@ class Frames(object):
         # Clear cache from stale entries
         now = time()
         if now > self.last_cleanup + cfg['cleanup_interval']:
+            self.last_cleanup = now
             for key in self.beacons.keys():
                 entry = self.beacons[key]
-                if entry['stamp'] + cfg['max_time_between']:
+                if now > entry['stamp'] + cfg['max_time_between']:
                     del self.beacons[key]
 
-
         # Read from cache
-        key = (frame['src'], frame['essid'])
+        key = (frame['src'], frame['ssid'])
         cache = self.beacons.get(key, None)
         if not cache:
             self.beacons[key] = {
@@ -59,6 +59,7 @@ class Frames(object):
                 'stored_str': frame['strength'],
                 'avg_str': frame['strength'],
             }
+            self.beacons_stored += 1
             return True
 
         def update_cache():
@@ -69,12 +70,12 @@ class Frames(object):
         # Update str
         cache['avg_str'] = (cache['avg_str'] * 5.0 + frame['strength']) / 6.0
 
-        if abs(cache['avg_str'] - cache['stored_str']) > cfg['max_str_dev']:
+        if abs(cache['avg_str'] - cache['stored_str']) >= cfg['max_str_dev']:
             update_cache()
             return True
 
         # Check time
-        if cache['stamp'] < frame['stamp'] + cfg['max_time_between']:
+        if cache['stamp'] + cfg['max_time_between'] < frame['stamp']:
             update_cache()
             return True
 
@@ -95,7 +96,8 @@ class Frames(object):
 
         # Print filter stats
         if self.frames_checked % 100 == 0:
-            self.db.log.info("Beacon filter: omitted={0} stored={1} checked={2} cache_size={3}",
+            self.db.log.info("Beacon filter: filtered={0:.2f}% omitted={1} stored={2} checked={3} cache_size={4}",
+                             100.0 * self.beacons_omitted/(self.beacons_omitted + self.beacons_stored + 0.1),
                              self.beacons_omitted, self.beacons_stored, self.frames_checked,
                              len(self.beacons))
 
