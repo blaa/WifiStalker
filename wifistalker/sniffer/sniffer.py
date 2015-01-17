@@ -113,6 +113,6 @@ class Sniffer(object):
             if self.enable_hopping:
                 ret = self.hopper.karmic_hop()
                 if ret is False:
-                    breako
+                    break
 
             self.watchdog.dontkillmeplease()
