@@ -145,8 +145,9 @@ class Hopper(object):
         "Hop to the next channel, take karma into account"
         if self.channel_karma:
             self.channel_karma -= 1
-            self.log.info('Staying a bit longer; karma={0} karma_inc={1}',
-                        self.channel_karma, self.channel_inc)
+            print 'Staying a bit longer on {2}; karma={0} karma_inc={1}'.format(self.channel_karma,
+                                                                                self.channel_inc,
+                                                                                self.channel_number)
             return True
 
         return self.hop()

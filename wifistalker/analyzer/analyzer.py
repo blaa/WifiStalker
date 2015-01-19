@@ -11,7 +11,10 @@ from wifistalker.model import Sender, SenderCache
 from wifistalker import Log, WatchDog
 
 class Analyzer(object):
-    "Handle displaying"
+    """Handle packet analysis.
+
+    TODO: Split into two classes - one doing analysis, second with generic analysis logic.
+    """
     def __init__(self, db):
         self.db = db
 
@@ -80,17 +83,21 @@ class Analyzer(object):
         ssid = frame['ssid']
         if ssid:
             if 'BEACON' in tags:
-                aggregate['ssid_beacon'].append(ssid)
+                if ssid not in aggregate['ssid_beacon']:
+                    aggregate['ssid_beacon'].append(ssid)
             elif 'PROBE_REQ' in tags:
-                aggregate['ssid_probe'].append(ssid)
+                if ssid not in aggregate['ssid_probe']:
+                    aggregate['ssid_probe'].append(ssid)
             else:
                 # Not Beacon, not probe, something else.
                 if sender.meta['station']:
                     # This is rather a beacon...
-                    aggregate['ssid_beacon'].append(ssid)
+                    if ssid not in aggregate['ssid_beacon']:
+                        aggregate['ssid_beacon'].append(ssid)
                 else:
                     # Or not?
-                    aggregate['ssid_other'].append(ssid)
+                    if ssid not in aggregate['ssid_other']:
+                        aggregate['ssid_other'].append(ssid)
 
 
         if (frame['dst']
@@ -98,6 +105,9 @@ class Analyzer(object):
             and frame['dst'] not in aggregate['dsts']):
             # Add destination:
             aggregate['dsts'].append(frame['dst'])
+
+        if frame['strength']:
+            sender.meta['running_str'] = (sender.meta['running_str'] * 10.0 + frame['strength']) / 11.0
 
         """
         seen = {
@@ -115,6 +125,8 @@ class Analyzer(object):
         "Analyze until all senders got updated"
         only_src_macs = [] # Any at start
         last_stamp = None
+
+        # Repeat this iterator until all senders are correctly saved.
         while True:
             iterator = self.db.frames.iterframes(current=current,
                                                  since=since,
@@ -131,7 +143,7 @@ class Analyzer(object):
                 if (cnt+1) % 10000 == 0:
                     print "Done {0} frames, last stamp is {1};".format(cnt, last_stamp)
                     self.watchdog.dontkillmeplease()
-            s = "Analyzed {0} frames, last stamp is {1}; {2[analyzed]}/{2[already_analyzed]}"
+            s = "Analyzed {0} frames, last stamp is {1}; Analyzed total={2[analyzed]}"
             print s.format(cnt, last_stamp, self.stats)
 
             if last_stamp is None:
@@ -157,8 +169,13 @@ class Analyzer(object):
         print 'Dropping existing knowledge in...'
         for i in range(3, 0, -1):
             print i, "second/s"
-            sleep(5)
-        self.db.knowledge.sender_drop()
+            sleep(1)
+        #self.db.knowledge.sender_drop()
+
+        senders = self.db.knowledge.sender_query()
+        for sender in senders:
+            sender.reset(hard=False)
+            self.db.knowledge.sender_store(sender)
 
         # Once
         self._analysis_loop(current=False, since=0)
@@ -171,8 +188,14 @@ class Analyzer(object):
         # One-time update for all knowledge entries
         #self._one_time_update()
 
-        # Moving point-of-time from which we read frames
-        since = 0
+        # `since' creates a moving point-of-time from which we read frames.
+        # Initialize with timestamp of last analysis
+        result = self.db.knowledge.sender_query(count=1, sort='-last_seen')
+        if result:
+            since = result[0].aggregate['last_seen'] - 1
+        else:
+            since = 0
+
         while True:
             self.watchdog.dontkillmeplease()
 
@@ -181,7 +204,7 @@ class Analyzer(object):
             if new_since is None:
                 self.log.info('Waiting for frames')
 
-                sleep(1)
+                sleep(5)
                 self.watchdog.dontkillmeplease()
                 continue
 
@@ -196,23 +219,14 @@ class Analyzer(object):
 
 
 
+    def _update_static(self, sender):
+        # Decode vendor
+        sender.meta['vendor'] = self.db.knowledge.get_vendor(sender.mac)
 
-
-
-
-
-
-
-
-
-
-    def _update_geo(self, senders):
-        raise Exception()
-
-        for sender in senders.itervalues():
-            positions = self.db.geo.locate(mac=sender['mac'])
-            for position in positions:
-                sender.add_position(lat, lon)
+        # Decode GEO location based on bssid/mac
+        position = self.db.geo.locate(mac=sender['mac'])
+        for position in positions:
+            sender.add_position(lat, lon)
 
 
     def _one_time_update(self):
@@ -225,4 +239,3 @@ class Analyzer(object):
             sender['version'] += 1
             ret = db.set_sender(sender)
         print "One time update finished", len(senders)
-

@@ -67,9 +67,9 @@ class PacketParser(object):
 
             # TODO: Add query harvesting
             if 53 == udp.dport:
-                data['tags'].add(['DNS', 'DNS_REQ'])
+                data['tags'].update(['DNS', 'DNS_REQ'])
             if 53 == udp.sport:
-                data['tags'].add(['DNS', 'DNS_RESP'])
+                data['tags'].update(['DNS', 'DNS_RESP'])
 
         print repr(ip)
         print hl

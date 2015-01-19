@@ -52,14 +52,18 @@ class Sender(object):
             'aggregate': self.aggregate,
         }
 
-    def reset(self, mac, hard=False):
+    def reset(self, mac=None, hard=False):
         "Drop data and initialize object. Hard drops user data as well."
 
         # MAC Address
-        self.mac = mac
+        if mac is not None:
+            self.mac = mac
 
         # Optimistic locking
-        self.version = None
+        if hard is True:
+            self.version = None
+        else:
+            assert self.version >= 0
 
         if hard:
             self.user = {
@@ -172,7 +176,7 @@ class SenderCache(object):
             return self.cache[mac]
 
         # DB
-        res = self.db.knowledge.senders_query(mac=mac)
+        res = self.db.knowledge.sender_query(mac=mac)
         if not res:
             return None
         else:

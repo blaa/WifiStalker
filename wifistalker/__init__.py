@@ -10,3 +10,7 @@ from watchdog import WatchDog
 import sniffer
 import analyzer
 import web
+
+
+# Placeholder for the global DB object injected into Flask request functions
+db = None

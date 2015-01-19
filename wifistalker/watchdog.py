@@ -22,13 +22,18 @@ class WatchDog(threading.Thread):
         self.stamp = time()
 
     def run(self):
-        self.stamp = time()
-
+        self.dontkillmeplease()
+        last_check = time()
         while True:
             sleep(self.interval)
             now = time()
             if self.stamp + self.interval < now:
+                if now - last_check > 2 * self.interval:
+                    print "Watchdog: Hibernation/suspend/global lock detected - still waiting."
+                    last_check = now
+                    continue # Wait one interval more
                 self.die()
+            last_check = now
 
 
     def die(self):
@@ -52,4 +57,3 @@ class WatchDog(threading.Thread):
 
         lines += ["", "Watchdog salutes.", "================================"]
         print >> sys.stderr, "\n".join(lines)
-

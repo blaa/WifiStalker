@@ -2,6 +2,7 @@
 # License: GPLv2
 
 import re
+from time import time
 
 from presence import PresenceSnapshot
 from sender import Sender
@@ -21,7 +22,7 @@ class Knowledge(object):
         self.knowledge.write_concern = {'w': 1}
 
         self.knowledge.ensure_index('mac')
-        self.knowledge.ensure_index('last_seen')
+        self.knowledge.ensure_index('aggregate.last_seen')
 
         # Presence snapshots
         self.snapshot = self.db['snapshot']
@@ -54,13 +55,13 @@ class Knowledge(object):
 
     ##
     # Sender knowledge
-    def senders_query(self, mac=None, sort='last_seen', since=None):
+    def sender_query(self, mac=None, sort='last_seen', time_window=None, count=None):
         """Query the database for a sender by it's MAC address.
 
         If mac is None - return a list of all senders.
         sort can start with `-' to change sort direction
 
-        since sets a timewindow in which to query the senders.
+        time_window - recently seen (X seconds) senders only
         """
         # Parse sorting order
         direction = 1
@@ -74,13 +75,15 @@ class Knowledge(object):
         if mac is not None:
             where['mac'] = mac
 
-        if since:
+        if time_window:
             now = time()
-            where['last_seen'] = {
-                '$gt': now - since
+            where['aggregate.last_seen'] = {
+                '$gt': now - time_window
             }
 
         senders = self.knowledge.find(where).sort(sort, direction)
+        if count is not None:
+            senders = senders[:count]
         return Sender.create_from_db(senders)
 
 
@@ -92,7 +95,7 @@ class Knowledge(object):
             obj = sender.get_dict()
             obj['version'] = 0
 
-            assert self.senders_query(mac=sender.mac) == [] # Remove this check later
+            assert self.sender_query(mac=sender.mac) == [] # Remove this check later
             ret = self.knowledge.insert(obj)
             assert ret is not None
             # Mark version at this point in the object

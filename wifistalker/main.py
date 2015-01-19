@@ -114,12 +114,11 @@ def action_analyze(db, args):
     else:
         analyzer.run_continuous()
 
-
 def action_webapp(db, args):
     "Run webapp thread"
-    import webapp
-    # Start webapp
-    webapp.app.run()
+    from wifistalker import web
+
+    web.app.run()
 
 def action_geo_load(db, args):
     "Import GEO data"
@@ -138,13 +137,14 @@ def action_version(args):
 
 def init_db(args):
     "Open DB connection"
+    import wifistalker
     db = model.DB(db_conn=args.db_conn, db_name=args.db_name)
+    wifistalker.db = db
     return db
 
 def run():
     "Run WifiStalker"
     parser, args = _parse_arguments()
-
 
     if args.sniff:
         db = init_db(args)
@@ -155,7 +155,6 @@ def run():
     elif args.analyze_full:
         db = init_db(args)
         action_analyze(db, args)
-        
     elif args.webapp:
         db = init_db(args)
         action_webapp(db, args)
