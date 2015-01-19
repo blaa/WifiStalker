@@ -150,6 +150,10 @@ class Analyzer(object):
                 # No frames whatsoever
                 return None
 
+            # Update statics before storing
+            for mac, sender in self.sender_cache.iteritems():
+                self._update_static(sender)
+
             # Try to save
             only_src_macs = self.sender_cache.store()
 
@@ -212,21 +216,14 @@ class Analyzer(object):
 
 
 
-
-
-
-
-
-
-
     def _update_static(self, sender):
         # Decode vendor
         sender.meta['vendor'] = self.db.knowledge.get_vendor(sender.mac)
 
         # Decode GEO location based on bssid/mac
-        position = self.db.geo.locate(mac=sender['mac'])
-        for position in positions:
-            sender.add_position(lat, lon)
+        locations = self.db.geo.locate(mac=sender.mac)
+        for loc in locations:
+            sender.add_geo(loc)
 
 
     def _one_time_update(self):

@@ -138,6 +138,8 @@
 *** Idea: Allow to mark specified time range as a sniffing in a particular location
     Then - automatically mark all bssids as located within this
     localization (home, work, tram, shop)
+*** TODO Better mobile detection - sometimes they are both stations and clients.
+    And we want them to be treated as clients.
 *** TODO `event/Seen' knowledge should contain a context - visible BSSID during seeing.
 *** TODO Fix `event/seen' algorithm - nice parametrized filtering.
 *** TODO Events should contain stamp of highest signal strength.

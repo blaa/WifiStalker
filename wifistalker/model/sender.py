@@ -91,6 +91,9 @@ class Sender(object):
             'station': False,
             'vendor': None,
 
+            # Geographical positions
+            'geo': [],
+
             # Recent average strength (running average)
             'running_str': -90.0,
         }
@@ -129,6 +132,15 @@ class Sender(object):
         )
         return s
 
+    def add_geo(self, location):
+        """Add geographical tag to the sender
+
+        Layout:
+        { lat: 0.1, lon: 0.2, source: 'ow' }
+        """
+        if location in self.meta['geo']:
+            return
+        self.meta['geo'].append(location)
 
     def add_event(self, seen):
         # Filter the same and not interesting stuff
@@ -185,16 +197,17 @@ class SenderCache(object):
             self.cache[mac] = sender
             return sender
 
+    def iteritems(self, *args, **kwargs):
+        return self.cache.iteritems(*args, **kwargs)
+
     def create(self, mac):
         "Create a new sender object"
         sender = Sender(mac)
         self.cache[mac] = sender
         return sender
 
-
     def store(self):
         "Store each element in the cache, returning a list of failed objects"
-
         correct = 0
         failed = []
         for mac in self.cache.keys():

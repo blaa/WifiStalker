@@ -122,8 +122,8 @@ def action_webapp(db, args):
 
 def action_geo_load(db, args):
     "Import GEO data"
-    import geoloc
-    geoloc.run(args.geo_load)
+    
+    db.geo.load_openwlan(args.geo_load)
 
 def action_version(args):
     "Show version/license info"
