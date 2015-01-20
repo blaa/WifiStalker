@@ -1,0 +1,135 @@
+<div ng:controller="SenderCtrl">
+  <button class="btn btn-primary btn-sm" ng:click="refreshSender()">Refresh data</button>
+  <div class="row">
+    <div class="col-sm-4">
+      <div class="row form-horizontal">
+        <label class="col-sm-2 control-label">MAC</label>
+        <p class="col-sm-4 form-control-static">{{sender.mac}}</p>
+
+        <label class="col-sm-2 control-label">Vendor</label>
+        <p class="col-sm-4 form-control-static">{{sender.meta.vendor}}</p>
+      </div>
+
+      <form class="form-horizontal">
+        <div class="form-group">
+          <label class="col-sm-2 control-label">Alias</label>
+          <div class="col-sm-10">
+            <input class="form-control" ng:model="sender.user.alias"></input>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="col-sm-2 control-label">Owner</label>
+          <div class="col-sm-10">
+            <input class="form-control" ng:model="sender.user.owner"></input>
+          </div>
+        </div>
+        
+        <div class="form-group">
+          <label class="col-sm-2 control-label">Notes:</label>
+          <div class="col-sm-10">
+            <textarea class="form-control" rows="3" ng:model="sender.user.notes"></textarea>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <div class="col-sm-2"></div>
+          <div class="col-sm-2">
+            <button ng:click="saveTab(tab)" class="form-control btn btn-primary">Save</button>
+          </div>
+        </div>
+      </form>
+
+      <!-- Static info -->
+      <div class="row form-horizontal">
+        <label class="col-sm-2 control-label">Probed SSIDs</label>
+        <p class="col-sm-10 form-control-static">
+          <span ng:repeat="ssid in sender.aggregate.ssid_probe">{{ssid}}; </span>
+        </p>
+      </div>
+      <div class="row form-horizontal">
+        <label class="col-sm-2 control-label">Beaconed SSIDs</label>
+        <p class="col-sm-10 form-control-static">
+          <span ng:repeat="ssid in sender.aggregate.ssid_beacon">{{ssid}}; </span>
+        </p>
+      </div>
+      <div class="row form-horizontal">
+        <label class="col-sm-2 control-label">Other SSIDs</label>
+        <p class="col-sm-10 form-control-static">
+          <span ng:repeat="ssid in sender.aggregate.ssid_other">{{ssid}}; </span>
+        </p>
+      </div>
+      
+      <!-- FIXME - knowledge_by_mac doesn't exist, but was limited to -->
+      <div class="row form-horizontal">
+        <label class="col-sm-2 control-label">Destinations</label>
+        <p class="col-sm-10 form-control-static">
+          <span ng:repeat="dst in sender.aggregate.dsts">
+            <a href=""
+               ng:if="knowledge_by_mac.hasOwnProperty(dst)"
+               ng:click="openTab(dst)">{{dst}}; </a>
+            <span ng:if="!knowledge_by_mac.hasOwnProperty(dst)">{{dst}}; </span>
+          </span>
+        </p>
+      </div>
+
+      <div ng:repeat="loc in sender.meta.geo">
+        <div class="row form-horizontal">
+          <label class="col-sm-2 control-label">Latitude</label>
+          <p class="col-sm-2 form-control-static">{{loc.lat | number: 4}}</p>
+
+          <label class="col-sm-2 control-label">Longitude</label>
+          <p class="col-sm-2 form-control-static">{{loc.lon | number: 4}}</p>
+
+          <label class="col-sm-2 control-label">Source</label>
+          <p class="col-sm-2 form-control-static">{{loc.source}}</p>
+        </div>
+      </div>
+      
+
+      <div class="row form-horizontal">
+        <label class="col-sm-2 control-label">First seen</label>
+        <p class="col-sm-4 form-control-static">{{sender.aggregate.first_seen*1000 | date:'yyyy-MM-dd HH:mm:ss'}}</p>
+
+        <label class="col-sm-2 control-label">Last seen</label>
+        <p class="col-sm-4 form-control-static">{{sender.aggregate.last_seen*1000 | date:'yyyy-MM-dd HH:mm:ss'}}</p>
+      </div>
+
+      <div class="row form-horizontal">
+        <label class="col-sm-2 control-label">Packets stat</label>
+        <div class="col-sm-10">
+          <table class="table table-striped">
+            <tr>
+              <th>all</th>
+              <th>beacons</th>
+              <th>disassoc</th>
+              <th>assoc req</th>
+              <th>assoc resp</th>
+              <th>probe req</th>
+              <th>probe resp</th>
+            </tr>
+            <tr>
+              <td>{{sender.stat.all}}</td>
+              <td>{{sender.stat.beacons}}</td>
+              <td>{{sender.stat.disass}}</td>
+              <td>{{sender.stat.assoc_req}}</td>
+              <td>{{sender.stat.assoc_resp}}</td>
+              <td>{{sender.stat.probe_req}}</td>
+              <td>{{sender.stat.probe_resp}}</td>
+            </tr>
+          </table>
+        </div>
+      </div>
+
+    </div> <!-- End left col -->
+
+    <div class="col-sm-5">
+      Strength chart
+      <canvas width="800" height="400"  graph-data="graphData" wifi-chart></canvas>
+    </div>
+  </div>
+
+  <pre>
+    {{ sender |json }}
+  </pre>
+</div>
