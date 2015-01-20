@@ -1,5 +1,6 @@
 # Author: Tomasz bla Fortuna
 # License: GPLv2
+
 from wifistalker import config
 from time import time
 
@@ -130,15 +131,3 @@ class Frames(object):
         for frame in frames:
             yield frame
 
-
-    """
-    def get_all_frames(self, since=0):
-        frames = self.all_frames.find({'stamp': {'$gt': since}})
-        frames.sort('stamp', 1)
-        return frames
-
-    def get_current_frames(self, since=0):
-        frames = self.current_frames.find({'stamp': {'$gt': since}})
-        frames.sort('stamp_utc', 1)
-        return list(frames)
-    """
