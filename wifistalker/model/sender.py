@@ -132,6 +132,12 @@ class Sender(object):
         )
         return s
 
+    def set_userdata(self, alias, owner, notes):
+        "Set user data"
+        self.user['alias'] = alias
+        self.user['owner'] = owner
+        self.user['notes'] = notes
+
     def add_geo(self, location):
         """Add geographical tag to the sender
 

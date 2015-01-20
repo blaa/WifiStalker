@@ -122,7 +122,6 @@ def action_webapp(db, args):
 
 def action_geo_load(db, args):
     "Import GEO data"
-    
     db.geo.load_openwlan(args.geo_load)
 
 def action_version(args):

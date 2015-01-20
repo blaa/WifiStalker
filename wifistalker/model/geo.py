@@ -22,7 +22,6 @@ class Geo(object):
             where['essid'] = essid
 
         results = self.geo.find(where)
-        print where
         return [ {
             'lat': res['lat'],
             'lon': res['lon'],

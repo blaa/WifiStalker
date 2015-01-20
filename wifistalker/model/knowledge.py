@@ -73,7 +73,7 @@ class Knowledge(object):
         where = {}
 
         if mac is not None:
-            where['mac'] = mac
+            where['mac'] = mac.lower()
 
         if time_window:
             now = time()
@@ -163,7 +163,6 @@ class Knowledge(object):
 
     def presence_store(self, name, since=60):
         pass
-
 
     def presence_remove(self, presence_lst):
         for presence in presence_lst:
