@@ -5,6 +5,8 @@ app.controller("SenderCtrl", function($scope, $http, $interval, $log) {
      * $scope.tab - this tab
      */
     $scope.sender = undefined;
+    $scope.chartData = undefined;
+
     $scope.graphData = undefined;
 
     /*
@@ -17,8 +19,13 @@ app.controller("SenderCtrl", function($scope, $http, $interval, $log) {
                 $scope.tab.title = $scope.sender.user.alias;
             else
                 $scope.tab.title = $scope.tab.mac;
-            
         }
+
+        function setChartData(data) {
+            $scope.chartData = data.chart;
+            $log.info('Loaded chart data', $scope.chartData);
+        }
+
         function setGraphData(data) {
             $scope.graphData = data.graph;
             $log.info('Loaded graph data', $scope.graphData);
@@ -30,12 +37,20 @@ app.controller("SenderCtrl", function($scope, $http, $interval, $log) {
             'success': setSenderData
         });
 
-        // Get graph data
-        var httpRequest = $http({
+        // Get chart data
+        $http({
             method: 'GET',
             url: '/api/graph/strength/' + $scope.tab.mac,
             data: {}
+        }).success(setChartData);
+
+        // Get chart data
+        $http({
+            method: 'GET',
+            url: '/api/graph/relations/' + $scope.tab.mac,
+            data: {}
         }).success(setGraphData);
+
     };
 
     /* Initialize tab contents */

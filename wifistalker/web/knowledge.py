@@ -19,7 +19,6 @@ def get_logs():
 @api.route('/knowledge')
 def get_knowledge():
     u"Read knowledge limited to recent appearances"
-
     time_window = request.args.get('time_window', None)
     sort = request.args.get('sort', 'last_seen')
     mac = request.args.get('mac', None)
@@ -29,7 +28,15 @@ def get_knowledge():
 
     knowledge = g.db.knowledge.sender_query(mac=mac, sort=sort, time_window=time_window)
 
-    return jsonify({'knowledge': [k.get_dict() for k in knowledge]})
+    for_web = []
+    for sender in knowledge:
+        sender = sender.get_dict()
+        # These can be huge and aren't displayed
+        sender['aggregate']['assocs'] = len(sender['aggregate']['assocs'])
+        sender['aggregate']['dsts'] = len(sender['aggregate']['dsts'])
+        for_web.append(sender)
+
+    return jsonify({'knowledge': for_web})
 
 @api.route('/snapshot', methods=['POST'])
 def post_snapshot():
@@ -39,7 +46,6 @@ def post_snapshot():
     name = data.get('name', 'noname')
     if not name:
         name = 'noname'
-
     try:
         time_window = int(time_window)
     except (ValueError, TypeError):

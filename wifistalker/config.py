@@ -27,3 +27,8 @@ beacon_filter = {
     # Include at least one per X seconds
     'max_time_between': 2 * 60,
 }
+
+
+graph_relations = {
+    'cache_time': 10 * 60,
+}

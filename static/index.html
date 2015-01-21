@@ -14,8 +14,16 @@
     <!-- JS, vendor -->
     <script src="js/vendor/angular.min.js"></script>
     <script src="js/vendor/angular-route.min.js"></script>
-    <script src="js/vendor/ui-bootstrap-tpls.min.js"></script>  
+    <script src="js/vendor/ui-bootstrap-tpls.min.js"></script>
+
+    <!-- Vendor - graphs/charts -->
     <script src="js/vendor/chart.min.js"></script>
+    <script src="js/vendor/jquery.min.js"></script>
+    <script src="js/vendor/graphs/raphael-min.js"></script>
+    <script src="js/vendor/graphs/dracula_graffle.js"></script>
+    <script src="js/vendor/graphs/dracula_graph.js"></script>
+    <script src="js/vendor/graphs/ddracula_algorithms.js"></script>
+
 
     <!-- This app -->
     <script src="js/app.js"></script>
@@ -24,12 +32,12 @@
     <script src="js/knowledge/knowledge.js"></script>
     <script src="js/knowledge/table.js"></script>
     <script src="js/knowledge/sender.js"></script>
-    
+
     <script src="js/map.js"></script>
-    
+
     <link rel="stylesheet" href="css/main.css">
   </head>
-  
+
   <body ng-controller="MainCtrl">
     <noscript>
       This page uses HEAVILY Javascipt. Won't work without it - sorry.
@@ -48,7 +56,7 @@
         </div>
       </div>
     </nav>
-    
+
     <!-- Current view -->
     <div class="container-fluid">
       <div ng:view></div>

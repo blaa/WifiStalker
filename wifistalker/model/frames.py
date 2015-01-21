@@ -18,7 +18,7 @@ class Frames(object):
         # All received packets ever, but with beacon filter
         self.all_frames = self.db['all_frames']
         self.all_frames.ensure_index('stamp')
-        self.all_frames.ensure_index('mac')
+        self.all_frames.ensure_index('src')
 
         # Current frames - all within a time window
         self.current_frames = self.db['current_frames']
@@ -118,7 +118,7 @@ class Frames(object):
 
         where = {}
         if since is not None:
-            where['stamp'] = {'$gt': since}
+            where['stamp'] = {'$gte': since}
         if src:
             if isinstance(src, list):
                 src = [s.lower() for s in src]

@@ -86,7 +86,6 @@
         </div>
       </div>
       
-
       <div class="row form-horizontal">
         <label class="col-sm-2 control-label">First seen</label>
         <p class="col-sm-4 form-control-static">{{sender.aggregate.first_seen*1000 | date:'yyyy-MM-dd HH:mm:ss'}}</p>
@@ -125,7 +124,11 @@
 
     <div class="col-sm-5">
       Strength chart
-      <canvas width="800" height="400"  graph-data="graphData" wifi-chart></canvas>
+      <canvas width="800" height="400"  chart:data="chartData" wifi:chart></canvas>
+
+      Relation graph
+      <div id="relgraph-{{sender.mac}}" class="graph" graph:data="graphData" wifi:graph>
+      </div>
     </div>
   </div>
 

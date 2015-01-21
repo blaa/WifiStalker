@@ -9,7 +9,7 @@ from frames import Frames
 from knowledge import Knowledge
 from map import Map
 from geo import Geo
-
+from graph import Graph
 
 
 class DB(object):
@@ -37,6 +37,9 @@ class DB(object):
         self._log = self['log']
         self._log.ensure_index('stamp_utc', expireAfterSeconds=60*60)
 
+    def get_graph(self, mac):
+        "Create graph object"
+        return Graph(self, mac)
 
     def __getitem__(self, collection):
         "Create/get a collection"

@@ -25,7 +25,7 @@ app.controller("TableCtrl", function($scope, $http, $interval, $log) {
 
         $scope.loadKnowledge({
             'time_window': $scope.timeWindow,
-            'sort': 'last_seen',
+            'sort': '-last_seen',
             'success': handle_success
         });
     };

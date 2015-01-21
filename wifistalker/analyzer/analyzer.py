@@ -74,7 +74,6 @@ class Analyzer(object):
         elif 'DISASS' in tags:
             stat['disass'] += 1
         elif 'BEACON' in tags:
-            sender.meta['station'] = True
             stat['beacons'] += 1
 
         stat['all'] += 1
@@ -90,7 +89,10 @@ class Analyzer(object):
                     aggregate['ssid_probe'].append(ssid)
             else:
                 # Not Beacon, not probe, something else.
-                if sender.meta['station']:
+                if ssid not in aggregate['ssid_other']:
+                    aggregate['ssid_other'].append(ssid)
+                """
+                if sender.meta['ap']:
                     # This is rather a beacon...
                     if ssid not in aggregate['ssid_beacon']:
                         aggregate['ssid_beacon'].append(ssid)
@@ -98,6 +100,7 @@ class Analyzer(object):
                     # Or not?
                     if ssid not in aggregate['ssid_other']:
                         aggregate['ssid_other'].append(ssid)
+                """
 
 
         if (frame['dst']
@@ -108,6 +111,15 @@ class Analyzer(object):
 
         if frame['strength']:
             sender.meta['running_str'] = (sender.meta['running_str'] * 10.0 + frame['strength']) / 11.0
+
+        # Is it an AP or a client?
+        # Phone can send beacons. But APs can send probes too.
+        if (stat['probe_req'] > 0
+            and len(aggregate['ssid_probe']) > len(aggregate['ssid_beacon'])):
+            sender.meta['ap'] = False
+        elif stat['beacons'] > 0:
+            sender.meta['ap'] = True
+
 
         """
         seen = {
@@ -125,6 +137,7 @@ class Analyzer(object):
         "Analyze until all senders got updated"
         only_src_macs = [] # Any at start
         last_stamp = None
+        frames_total = 0
 
         # Repeat this iterator until all senders are correctly saved.
         while True:
@@ -144,6 +157,7 @@ class Analyzer(object):
                     print "Done {0} frames, last stamp is {1};".format(cnt, last_stamp)
                     self.watchdog.dontkillmeplease()
             s = "Analyzed {0} frames, last stamp is {1}; Analyzed total={2[analyzed]}"
+            frames_total += cnt
             print s.format(cnt, last_stamp, self.stats)
 
             if last_stamp is None:
@@ -159,7 +173,7 @@ class Analyzer(object):
 
             if not only_src_macs:
                 # Everything saved succesfully
-                return last_stamp
+                return (last_stamp, frames_total)
 
             # Not everything saved, continue until everything is
             # written.
@@ -192,6 +206,11 @@ class Analyzer(object):
         # One-time update for all knowledge entries
         #self._one_time_update()
 
+        # Reduce CPU usage by analyzing more frames in one go while
+        # trying to keep this number low to get frequent updates for
+        # the UI.
+        interval = 3
+
         # `since' creates a moving point-of-time from which we read frames.
         # Initialize with timestamp of last analysis
         result = self.db.knowledge.sender_query(count=1, sort='-last_seen')
@@ -204,14 +223,19 @@ class Analyzer(object):
             self.watchdog.dontkillmeplease()
 
             # Read current frames
-            new_since = self._analysis_loop(current=True, since=since)
-            if new_since is None:
-                self.log.info('Waiting for frames')
+            ret = self._analysis_loop(current=True, since=since)
 
-                sleep(5)
-                self.watchdog.dontkillmeplease()
-                continue
+            # Try to analyze 100 - 150 frames in one pass
+            new_since, frames_total = ret if ret else (since, 0)
+            if frames_total < 100 and interval < 10:
+                interval += 0.5
+                print "interval is", interval
+            if frames_total > 150 and interval > 1:
+                interval -= 1 if interval > 1 else 0.1
+                print "interval is", interval
 
+            self.watchdog.dontkillmeplease()
+            sleep(interval)
             since = new_since
 
 

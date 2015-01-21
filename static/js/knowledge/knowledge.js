@@ -9,7 +9,7 @@ app.controller("KnowledgeCtrl", function($scope, $http, $log) {
     $scope.loadKnowledge = function(opts) {
         /* Generic data loading function shared between child controllers */
         var args = {
-            sort: 'last_seen',
+            sort: '-last_seen',
             mac: null,
             time_window: null,
             success: null

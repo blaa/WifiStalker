@@ -55,7 +55,7 @@ class Knowledge(object):
 
     ##
     # Sender knowledge
-    def sender_query(self, mac=None, sort='last_seen', time_window=None, count=None):
+    def sender_query(self, mac=None, sort='last_seen', time_window=None, advanced=None, count=None):
         """Query the database for a sender by it's MAC address.
 
         If mac is None - return a list of all senders.
@@ -80,6 +80,9 @@ class Knowledge(object):
             where['aggregate.last_seen'] = {
                 '$gt': now - time_window
             }
+
+        if advanced is not None:
+            where.update(advanced)
 
         senders = self.knowledge.find(where).sort(sort, direction)
         if count is not None:
@@ -133,19 +136,6 @@ class Knowledge(object):
     # Those were helper functions; faster but I doubt that's important
     # This functions were moved to the Sender instance
     """
-    def alias_store(self, mac, alias):
-        mac = mac.upper()
-        self.aliases.update({'mac': mac},
-                            {'mac': mac, 'alias': alias},
-                            upsert=True)
-
-    def alias_query(self, mac):
-        mac = mac.upper()
-        result = self.knowledge.find_one({'mac': mac})
-        if not result:
-            return None
-        return result['alias']
-
     def set_name(self, mac, alias, owner):
         self.db.knowledge.update(
             {'mac': mac}, {

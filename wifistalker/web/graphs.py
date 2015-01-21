@@ -2,6 +2,7 @@
 # License: GPLv2
 
 from datetime import datetime
+from time import time
 
 from flask import Blueprint
 
@@ -11,11 +12,11 @@ from flask import jsonify
 api = Blueprint('api_graph', __name__)
 
 @api.route('/strength/<mac>')
-def get_graph(mac):
-    "Get filtered strength graph data"
+def get_strength_chart(mac):
+    "Get filtered strength chart data"
     labels = []
     data = []
-    graph = {
+    chart = {
         'labels': labels,
         'datasets': [
             {
@@ -52,4 +53,12 @@ def get_graph(mac):
             cur_pts = 0
             point_no += 1
 
+    return jsonify({'chart': chart})
+
+@api.route('/relations/<mac>')
+def get_relations(mac):
+    ""
+    graph = g.db.get_graph(mac)
+    graph = graph.get()
+    del graph['_id']
     return jsonify({'graph': graph})

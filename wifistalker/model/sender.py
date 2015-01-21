@@ -88,7 +88,7 @@ class Sender(object):
         }
 
         self.meta = {
-            'station': False,
+            'ap': False,
             'vendor': None,
 
             # Geographical positions
@@ -125,10 +125,10 @@ class Sender(object):
 
     def __repr__(self):
         name = self.mac if self.user['alias'] is None else self.user['alias']
-        s = '<Sender %s pkts=%d station=%s>' % (
+        s = '<Sender %s pkts=%d ap=%s>' % (
             name,
             self.stat['all'],
-            self.meta['station']
+            self.meta['ap']
         )
         return s
 
