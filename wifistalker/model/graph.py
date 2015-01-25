@@ -156,14 +156,17 @@ class Graph(object):
 
     def add_related_node(self, sender):
         "Add base graph node (there's only one)"
-        self.add_sender(sender, fill='#f00')
+        self.add_sender(sender, fill='#f99')
 
 
 
     # High-level edges
     def add_ssid(self, ssid, color='blue'):
         "API: Define specific SSID"
-        self.add_node('ssid_' + ssid, shape='smallellipse', label=ssid, fill=color)
+        label = ssid
+        if len(label) > 14:
+            label = label[:13] + '...'
+        self.add_node('ssid_' + ssid, shape='smallellipse', label=label, fill=color)
 
     def add_probes(self, mac, ssid):
         "Add probe of a ssid by mac"

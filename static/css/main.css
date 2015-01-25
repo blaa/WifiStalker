@@ -12,7 +12,7 @@ body {
     padding-top: 55px;
 }
 
-td.station {
+td.ap {
     /*color: gray; */
 }
 
@@ -56,11 +56,6 @@ div.map {
     border-radius: 0.2;
 }
 
-
-.bla-separator {
-    margin-top: 10px;
-}
-
 .bla-close {
     visibility: hidden;
 }
@@ -92,6 +87,10 @@ tab-heading:hover .bla-close {
 
 .bla-other {
     font-style: italic;
+}
+
+.bla-vsep {
+    margin-top: 10px;
 }
 
 /* END OF SSIDs */

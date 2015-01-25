@@ -12,7 +12,6 @@ app.directive('wifiChart', function() {
             Chart.defaults.global.animation = false;
 
             function update(newValue) {
-
                 var options = {
                     bezierCurve: false,
                     datasetFill : false
@@ -52,13 +51,17 @@ app.directive('wifiGraph', function() {
                 scope.g.nodes = [];
                 scope.g.edges = [];
 
+                /* FIXME: No jquery maybe? */
+                $('svg', scope.canvas).children().remove();
+
+                /* Add nodes */
                 var i;
                 for (i in newValue.nodes) {
                     var node = newValue.nodes[i];
                     scope.g.addNode(node[0], node[1]);
-                    console.log('Adding node', node[0], node[1]);
                 }
 
+                /* Add edges */
                 for (i in newValue.edges) {
                     var edge = newValue.edges[i];
                     scope.g.addEdge(edge[0], edge[1], edge[2]);
@@ -68,7 +71,7 @@ app.directive('wifiGraph', function() {
 
                 /* FIXME: It doesn't want to work not-by-id */
                 if (scope.renderer == undefined) {
-                    scope.renderer = new Graph.Renderer.Raphael(canvas_id, scope.g, 800, 400);
+                    scope.renderer = new Graph.Renderer.Raphael(canvas_id, scope.g, 1024, 768);
                 }
                 scope.renderer.draw();
             }

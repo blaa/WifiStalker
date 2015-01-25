@@ -1,69 +1,101 @@
 <div ng:controller="SenderCtrl">
-  <button class="btn btn-primary btn-sm" ng:click="refreshSender()">Refresh data</button>
-  <div class="row">
-    <div class="col-sm-4">
-      <div class="row form-horizontal">
-        <label class="col-sm-2 control-label">MAC</label>
-        <p class="col-sm-4 form-control-static">{{sender.mac}}</p>
 
-        <label class="col-sm-2 control-label">Vendor</label>
-        <p class="col-sm-4 form-control-static">{{sender.meta.vendor}}</p>
+  <!-- Data -->
+  <div class="row">
+    <div class="col-md-6"> <!-- left col -->
+
+      <!-- Buttons -->
+      <div class="row" >
+        <div class="col-md-2">
+        </div>
+
+        <div class="col-md-4 bla-vsep">
+          <button class="btn btn-primary" ng:click="refreshSender()" title="Refresh data">
+            <i class="glyphicon glyphicon-refresh"></i>
+          </button>
+          <button class="btn btn-primary" title="Show charts and relations"
+                  ng:click="openTab(sender.mac, sender.meta.ap, sender.user.alias, 'charts')">
+            <i class="glyphicon glyphicon-stats"></i>
+          </button>
+
+          <button class="btn btn-primary" title="Display relations"
+                  ng:click="openTab(sender.mac, sender.meta.ap, sender.user.alias, 'geo')">
+            <i class="glyphicon glyphicon-eye-open"></i>
+            <!-- <i class="glyphicon glyphicon-record"></i> -->
+          </button>
+
+          <button ng:if="sender.meta.geo.length > 0"
+                  class="btn btn-primary" title="Show recorded positions"
+                  ng:click="openTab(sender.mac, sender.meta.ap, sender.user.alias, 'geo')">
+            <i class="glyphicon glyphicon-map-marker"></i>
+          </button>
+        </div>
       </div>
 
-      <form class="form-horizontal">
+      <div class="row form-horizontal bla-vsep">
+        <label class="col-md-2 control-label">MAC</label>
+        <p class="col-md-4 form-control-static">{{sender.mac}}</p>
+
+        <label class="col-md-2 control-label">Vendor</label>
+        <p class="col-md-4 form-control-static">{{sender.meta.vendor}}</p>
+      </div>
+
+      <form class="form-horizontal bla-vsep">
         <div class="form-group">
-          <label class="col-sm-2 control-label">Alias</label>
-          <div class="col-sm-10">
+          <label class="col-md-2 control-label">Alias</label>
+          <div class="col-md-10">
             <input class="form-control" ng:model="sender.user.alias"></input>
           </div>
         </div>
 
         <div class="form-group">
-          <label class="col-sm-2 control-label">Owner</label>
-          <div class="col-sm-10">
+          <label class="col-md-2 control-label">Owner</label>
+          <div class="col-md-10">
             <input class="form-control" ng:model="sender.user.owner"></input>
           </div>
         </div>
-        
+
         <div class="form-group">
-          <label class="col-sm-2 control-label">Notes:</label>
-          <div class="col-sm-10">
+          <label class="col-md-2 control-label">Notes:</label>
+          <div class="col-md-10">
             <textarea class="form-control" rows="3" ng:model="sender.user.notes"></textarea>
           </div>
         </div>
 
         <div class="form-group">
-          <div class="col-sm-2"></div>
-          <div class="col-sm-2">
+          <div class="col-md-2"></div>
+          <div class="col-md-2">
             <button ng:click="saveTab(tab)" class="form-control btn btn-primary">Save</button>
           </div>
         </div>
       </form>
 
-      <!-- Static info -->
+<!-- Static info -->
+
       <div class="row form-horizontal">
-        <label class="col-sm-2 control-label">Probed SSIDs</label>
-        <p class="col-sm-10 form-control-static">
+        <label class="col-md-2 control-label">Probed SSIDs</label>
+        <p class="col-md-10 form-control-static">
           <span ng:repeat="ssid in sender.aggregate.ssid_probe">{{ssid}}; </span>
         </p>
       </div>
       <div class="row form-horizontal">
-        <label class="col-sm-2 control-label">Beaconed SSIDs</label>
-        <p class="col-sm-10 form-control-static">
+        <label class="col-md-2 control-label">Beaconed SSIDs</label>
+        <p class="col-md-10 form-control-static">
           <span ng:repeat="ssid in sender.aggregate.ssid_beacon">{{ssid}}; </span>
         </p>
       </div>
       <div class="row form-horizontal">
-        <label class="col-sm-2 control-label">Other SSIDs</label>
-        <p class="col-sm-10 form-control-static">
+        <label class="col-md-2 control-label">Other SSIDs</label>
+        <p class="col-md-10 form-control-static">
           <span ng:repeat="ssid in sender.aggregate.ssid_other">{{ssid}}; </span>
         </p>
       </div>
-      
-      <!-- FIXME - knowledge_by_mac doesn't exist, but was limited to -->
+
+<!-- FIXME - knowledge_by_mac doesn't exist, but was limited to0 -->
+
       <div class="row form-horizontal">
-        <label class="col-sm-2 control-label">Destinations</label>
-        <p class="col-sm-10 form-control-static">
+        <label class="col-md-2 control-label">Destinations</label>
+        <p class="col-md-10 form-control-static">
           <span ng:repeat="dst in sender.aggregate.dsts">
             <a href=""
                ng:if="knowledge_by_mac.hasOwnProperty(dst)"
@@ -75,28 +107,27 @@
 
       <div ng:repeat="loc in sender.meta.geo">
         <div class="row form-horizontal">
-          <label class="col-sm-2 control-label">Latitude</label>
-          <p class="col-sm-2 form-control-static">{{loc.lat | number: 4}}</p>
+          <label class="col-md-2 control-label">Latitude</label>
+          <p class="col-md-2 form-control-static">{{loc.lat | number: 4}}</p>
 
-          <label class="col-sm-2 control-label">Longitude</label>
-          <p class="col-sm-2 form-control-static">{{loc.lon | number: 4}}</p>
+          <label class="col-md-2 control-label">Longitude</label>
+          <p class="col-md-2 form-control-static">{{loc.lon | number: 4}}</p>
 
-          <label class="col-sm-2 control-label">Source</label>
-          <p class="col-sm-2 form-control-static">{{loc.source}}</p>
+          <label class="col-md-2 control-label">Source</label>
+          <p class="col-md-2 form-control-static">{{loc.source}}</p>
         </div>
       </div>
-      
-      <div class="row form-horizontal">
-        <label class="col-sm-2 control-label">First seen</label>
-        <p class="col-sm-4 form-control-static">{{sender.aggregate.first_seen*1000 | date:'yyyy-MM-dd HH:mm:ss'}}</p>
 
-        <label class="col-sm-2 control-label">Last seen</label>
-        <p class="col-sm-4 form-control-static">{{sender.aggregate.last_seen*1000 | date:'yyyy-MM-dd HH:mm:ss'}}</p>
+      <div class="row form-horizontal">
+        <label class="col-md-2 control-label">First seen</label>
+        <p class="col-md-4 form-control-static">{{sender.aggregate.first_seen*1000 | date:'yyyy-MM-dd HH:mm:ss'}}</p>
+
+        <label class="col-md-2 control-label">Last seen</label>
+        <p class="col-md-4 form-control-static">{{sender.aggregate.last_seen*1000 | date:'yyyy-MM-dd HH:mm:ss'}}</p>
       </div>
 
       <div class="row form-horizontal">
-        <label class="col-sm-2 control-label">Packets stat</label>
-        <div class="col-sm-10">
+        <div class="col-md-12">
           <table class="table table-striped">
             <tr>
               <th>all</th>
@@ -121,15 +152,6 @@
       </div>
 
     </div> <!-- End left col -->
-
-    <div class="col-sm-5">
-      Strength chart
-      <canvas width="800" height="400"  chart:data="chartData" wifi:chart></canvas>
-
-      Relation graph
-      <div id="relgraph-{{sender.mac}}" class="graph" graph:data="graphData" wifi:graph>
-      </div>
-    </div>
   </div>
 
   <pre>

@@ -32,8 +32,10 @@ def get_knowledge():
     for sender in knowledge:
         sender = sender.get_dict()
         # These can be huge and aren't displayed
-        sender['aggregate']['assocs'] = len(sender['aggregate']['assocs'])
-        sender['aggregate']['dsts'] = len(sender['aggregate']['dsts'])
+        if mac is None:
+            # Limit assocs / dsts in response for the table, keep in directed questions
+            sender['aggregate']['assocs'] = len(sender['aggregate']['assocs'])
+            sender['aggregate']['dsts'] = len(sender['aggregate']['dsts'])
         for_web.append(sender)
 
     return jsonify({'knowledge': for_web})

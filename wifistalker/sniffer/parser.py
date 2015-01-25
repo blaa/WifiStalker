@@ -37,10 +37,17 @@ class PacketParser(object):
 
         ip = p.getlayer('IP')
         # Highlevel meta
-        hl = {
-            'src': ip.src,
-            'dst': ip.dst,
-        }
+        try:
+            hl = {
+                'src': ip.src,
+                'dst': ip.dst,
+            }
+        except:
+            hl = {
+                'src': None,
+                'dst': None,
+            }
+            print "Exception"
         data['hl'] = hl
         data['tags'].add('IP')
 
@@ -203,6 +210,10 @@ class PacketParser(object):
                 sig_str = -(256-ord(radiotap.notdecoded[-4:-3]))
         except:
             self.log.info('Ignoring malformed wifi radiotap header {0!r}', p)
+            return None
+
+        # FIXME FIXME DEBUG FILTER
+        if mac_source.startswith('00:15'):
             return None
 
         antenna = ord(radiotap.notdecoded[-3:-2])

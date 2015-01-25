@@ -9,7 +9,7 @@ app.controller("KnowledgeCtrl", function($scope, $http, $log) {
     $scope.loadKnowledge = function(opts) {
         /* Generic data loading function shared between child controllers */
         var args = {
-            sort: '-last_seen',
+            sort: '-aggregate.last_seen',
             mac: null,
             time_window: null,
             success: null
@@ -43,28 +43,34 @@ app.controller("KnowledgeCtrl", function($scope, $http, $log) {
     $log.info('Knowledge loaded');
 
     /* Open tab for specified sender */
-    $scope.openTab = function(mac, station) {
+    $scope.openTab = function(mac, ap, title, type) {
         /* Check if already open */
 
         /* Try opening existing tab instead of opening new one*/
         var tab;
         for (var i in $scope.detailsTabs) {
             tab = $scope.detailsTabs[i];
-            if (tab.mac == mac) {
+            if (tab.mac == mac && tab.type == type) {
                 // Just open it.
                 tab.active = true;
+                $log.info('Chart was already open');
                 return;
             }
         }
 
+        if (!title) {
+            title = 'Opening new tab';
+        }
+
         /* Not opened - Open new */
         tab = {    // aa:bb:cc:dd:ee:ff
-            'title': 'Opening  new  tab',
+            'title': title,
             'mac': mac,
             'active': true,
+            'type': type,
 
             /* Used to show icon */
-            'station': station,
+            'ap': ap,
 
             // Graph data
             graph: undefined

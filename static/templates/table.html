@@ -1,44 +1,62 @@
 <!-- Buttons -->
 <div ng:controller="TableCtrl">
 
-  <div class="bla-separator"></div>
   <div class="row">
-    <div class="col-md-7">
-      <label for="time_window">Time window:</label>
-      <div id="time_window" ng:click="refreshTable()" class="btn-group">
-        <label class="btn btn-default" ng:model="timeWindow" btn-radio="10">10s</label>
-        <label class="btn btn-default" ng:model="timeWindow" btn-radio="60">60s</label>
-        <label class="btn btn-default" ng:model="timeWindow" btn-radio="120">2m</label>
-        <label class="btn btn-default" ng:model="timeWindow" btn-radio="600">10m</label>
-        <label class="btn btn-default" ng:model="timeWindow" btn-radio="3600">1h</label>
-        <label class="btn btn-default" ng:model="timeWindow" btn-radio="7200">2h</label>
-        <label class="btn btn-default" ng:model="timeWindow" btn-radio="28800">8h</label>
-        <label class="btn btn-default" ng:model="timeWindow" btn-radio="86400">24h</label>
-        <label class="btn btn-default" ng:model="timeWindow" btn-radio="0">all</label>              
-      </div>
-      
-      <label for="refresh_interval">Refresh interval:</label>
-      <div id="refresh_interval" class="btn-group">
-        <label class="btn btn-default" ng:model="refreshInterval" btn-radio="0.5">instant</label>
-        <label class="btn btn-default" ng:model="refreshInterval" btn-radio="2">2s</label>
-        <label class="btn btn-default" ng:model="refreshInterval" btn-radio="10">10s</label>
-        <label class="btn btn-default" ng:model="refreshInterval" btn-radio="60">1m</label>
-        <label class="btn btn-default" ng:model="refreshInterval" btn-radio="120">5m</label>
-        <label class="btn btn-default" ng:model="refreshInterval" btn-radio="'pause'">pause</label>
-      </div>
-      <button class="btn btn-primary btn-sm" ng:click="refreshTable()">Refresh now</button>
-    </div>
+    <div class="col-md-6 form-horizontal">
 
-    <div class="col-md-3">
-      <form class="form-inline" role="form">
-        <div class="form-group">
-          <input name="snapshotName" placeholder="Snapshot name"
-                 class="form-control input-sm" ng:model="snapshotName"></input>
-          <button class="btn btn-primary btn-sm" ng:click="snapshotCreate()">Create presence snapshot</button>
+      <div class="row">
+        <div class="col-md-2"></div>
+        <div class="col-md-2 bla-vsep">
+          <button class="btn btn-primary" ng:click="refreshTable()" title="Refresh data">
+            <i class="glyphicon glyphicon-refresh"></i>
+          </button>
         </div>
-      </form>
+
+        <div class="col-md-6 bla-vsep">
+          <input name="snapshotName" placeholder="Snapshot name"
+                 class="input-sm" ng:model="snapshotName"></input>
+          <button class="btn btn-primary btn-sm" ng:click="snapshotCreate()" title="Save presence snapshot">
+            <i class="glyphicon glyphicon-floppy-save"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-6">
     </div>
   </div>
+
+  <div class="row"> <!-- Option row -->
+    <div class="col-md-6 form-horizontal">
+      <div class="row bla-vsep">
+        <label class="col-md-2 control-label" for="time_window">Time window:</label>
+        <div id="time_window" ng:click="refreshTable()" class="col-md-10 btn-group">
+          <label class="btn btn-default" ng:model="timeWindow" btn-radio="10">10s</label>
+          <label class="btn btn-default" ng:model="timeWindow" btn-radio="60">60s</label>
+          <label class="btn btn-default" ng:model="timeWindow" btn-radio="120">2m</label>
+          <label class="btn btn-default" ng:model="timeWindow" btn-radio="600">10m</label>
+          <label class="btn btn-default" ng:model="timeWindow" btn-radio="3600">1h</label>
+          <label class="btn btn-default" ng:model="timeWindow" btn-radio="7200">2h</label>
+          <label class="btn btn-default" ng:model="timeWindow" btn-radio="28800">8h</label>
+          <label class="btn btn-default" ng:model="timeWindow" btn-radio="86400">24h</label>
+          <label class="btn btn-default" ng:model="timeWindow" btn-radio="0">all</label>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-6 form-horizontal">
+      <div class="row bla-vsep">
+        <label class="col-md-2 control-label" for="refresh_interval">Refresh interval:</label>
+        <div id="refresh_interval" class="col-md-10 btn-group">
+          <label class="btn btn-default" ng:model="refreshInterval" btn-radio="0.5">instant</label>
+          <label class="btn btn-default" ng:model="refreshInterval" btn-radio="2">2s</label>
+          <label class="btn btn-default" ng:model="refreshInterval" btn-radio="10">10s</label>
+          <label class="btn btn-default" ng:model="refreshInterval" btn-radio="60">1m</label>
+          <label class="btn btn-default" ng:model="refreshInterval" btn-radio="120">5m</label>
+          <label class="btn btn-default" ng:model="refreshInterval" btn-radio="'pause'">pause</label>
+        </div>
+      </div>
+    </div>
+  </div> <!-- End of Option row -->
 
   <div ng:if="!knowledge">
     <p>No data in specified time window, or not yet loaded</p>
@@ -58,9 +76,9 @@
         </tr>
       </thead>
       <tbody>
-        <tr ng:click="openTab(host.mac, host.meta.station)" ng:repeat="host in knowledge">
-          <td ng:class="{'station': host.meta.station, 
-                        'client': !host.meta.station}">
+        <tr ng:click="openTab(host.mac, host.meta.ap, host.user.alias, 'sender')" ng:repeat="host in knowledge">
+          <td ng:class="{'ap': host.meta.ap,
+                        'client': !host.meta.ap}">
             <span class="bla-macalias" ng:if="host.alias">
               <span class="bla-alias">
                 {{host.user.alias}}
@@ -77,7 +95,7 @@
               <i class="glyphicon glyphicon-map-marker"></i>
             </span>
           </td>
-          
+
           <td>{{host.meta.vendor}}</td>
           <td>{{host.aggregate.last_seen*1000 | date:'HH:mm:ss'}}</td>
           <td>{{host.meta.running_str | number: 3}}</td>

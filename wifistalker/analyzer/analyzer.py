@@ -213,11 +213,13 @@ class Analyzer(object):
 
         # `since' creates a moving point-of-time from which we read frames.
         # Initialize with timestamp of last analysis
-        result = self.db.knowledge.sender_query(count=1, sort='-last_seen')
+        result = self.db.knowledge.sender_query(count=1, sort='-aggregate.last_seen')
         if result:
             since = result[0].aggregate['last_seen'] - 1
         else:
             since = 0
+
+        print "Starting from ", time() - since, "seconds in the past"
 
         while True:
             self.watchdog.dontkillmeplease()
@@ -225,12 +227,12 @@ class Analyzer(object):
             # Read current frames
             ret = self._analysis_loop(current=True, since=since)
 
-            # Try to analyze 100 - 150 frames in one pass
+            # Try to analyze 150 - 250 frames in one pass
             new_since, frames_total = ret if ret else (since, 0)
-            if frames_total < 100 and interval < 10:
+            if frames_total < 150 and interval < 10:
                 interval += 0.5
                 print "interval is", interval
-            if frames_total > 150 and interval > 1:
+            if frames_total > 250 and interval > 1:
                 interval -= 1 if interval > 1 else 0.1
                 print "interval is", interval
 
