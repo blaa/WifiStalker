@@ -39,6 +39,8 @@ def get_strength_chart(mac):
     cur_pts = 0
     cur_value = 0.0
     for frame in frames:
+        if frame['strength'] is None:
+            continue
         cur_value += frame['strength']
         cur_pts += 1
         if cur_pts >= group_by:

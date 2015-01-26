@@ -1,33 +1,44 @@
 <div ng:controller="KnowledgeCtrl">
+
+   <div ng:if="load_fail" class="alert alert-danger bla-vsep" role="alert">
+    <span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>
+    Failed to load knowledge data.
+  </div>
+  
   <tabset>
     <!-- Knowledge table tab -->
     <tab>
       <tab-heading>
-        <i class="glyphicon glyphicon-signal"> Wifi</i>
+        <i class="glyphicon glyphicon-signal"></i>
       </tab-heading>
       <ng:include src="'/templates/table.html'"></ng:include>
     </tab>
 
     <!-- All current opened data tabs -->
     <tab ng-repeat="tab in detailsTabs" active="tab.active">
-      <tab-heading>
+      <tab-heading ng:class="{'bla-client': !tab.meta.ap,
+                              'bla-ap': tab.meta.ap}">
         <i ng:if="tab.type == 'charts'" class="glyphicon glyphicon-stats"></i>
-        <i class="glyphicon"
-           ng:class="{'glyphicon-phone': !tab.ap,
-                     'glyphicon-screenshot': tab.ap}"></i>
+        <i ng:if="tab.type == 'graphs'" class="glyphicon glyphicon-eye-open"></i>
+        <i ng:if="tab.type == 'geo'" class="glyphicon glyphicon-geo"></i>
+        <i ng:if="tab.type == 'sender'" class="glyphicon glyphicon-list"></i>
+        <i ng:if="tab.type == 'label'" class="glyphicon glyphicon-cog"></i>
+
+        
+        <!-- glyphicon-phone glyphicon-screenshot -->
+        <i ng:if="!tab.meta.ap" class="glyphicon glyphicon-phone"></i>
         {{tab.title}}
         <a class="bla-close" ng:click="closeTab($index)"><i class="glyphicon glyphicon-remove"></i></a>
       </tab-heading>
-      <ng:include ng:if="tab.type == 'sender'"
-                  ng:init="host = tab.knowledge" src="'/templates/sender.html'"></ng:include>
-      <ng:include ng:if="tab.type == 'charts'"
-                  ng:init="host = tab.knowledge" src="'/templates/charts.html'"></ng:include>
+      <ng:include ng:if="tab.type == 'sender'" src="'/templates/sender.html'"></ng:include>
+      <ng:include ng:if="tab.type == 'charts'" src="'/templates/charts.html'"></ng:include>
+      <ng:include ng:if="tab.type == 'graphs'" src="'/templates/graphs.html'"></ng:include>
     </tab>
 
     <!-- Logger -->
     <tab>
       <tab-heading>
-        <i class="glyphicon glyphicon-question-sign"> Log </i>
+        <i class="glyphicon glyphicon-question-sign"></i> Log
       </tab-heading>
 
       <div class="row">

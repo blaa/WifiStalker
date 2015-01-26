@@ -67,18 +67,25 @@ class PacketParser(object):
                 print "RES", tcp.payload
             if 443 in ports:
                 data['tags'].add('HTTPS')
+            if 80 in ports:
+                data['tags'].add('HTTP')
         elif udp is not None:
             ports = [udp.sport, udp.dport]
             hl['sport'] = udp.sport
             hl['dport'] = udp.dport
 
-            # TODO: Add query harvesting
+            # TODO: Add DNS query harvesting
             if 53 == udp.dport:
                 data['tags'].update(['DNS', 'DNS_REQ'])
+                print "DNS QUERY:", repr(ip)
             if 53 == udp.sport:
                 data['tags'].update(['DNS', 'DNS_RESP'])
 
-        print repr(ip)
+            if 67 == udp.sport or 68 == udp.dport: # BOOTP Server
+                data['tags'].update(['BOOTP', 'BOOTP_SERVER'])
+            if 67 == udp.dport or 68 == udp.sport: # BOOTP Client
+                data['tags'].update(['BOOTP', 'BOOTP_CLIENT'])
+
         print hl
 
 
@@ -210,10 +217,6 @@ class PacketParser(object):
                 sig_str = -(256-ord(radiotap.notdecoded[-4:-3]))
         except:
             self.log.info('Ignoring malformed wifi radiotap header {0!r}', p)
-            return None
-
-        # FIXME FIXME DEBUG FILTER
-        if mac_source.startswith('00:15'):
             return None
 
         antenna = ord(radiotap.notdecoded[-3:-2])

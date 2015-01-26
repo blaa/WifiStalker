@@ -1,58 +1,76 @@
-<!-- Buttons -->
 <div ng:controller="TableCtrl">
+  <!-- Buttons -->
+  <div class="row bla-vsep">
+    <div class="col-md-12 form-inline">
+      <div class="form-group bla-rsep">
+        
+        <button ng:disabled="refreshing == true"
+                class="btn btn-primary" ng:click="refreshTable()" title="Refresh data">
+          <i ng:class="{'glyphicon-refresh-animate': refreshing == true}"
+             class="glyphicon glyphicon-refresh"></i>
+        </button>
 
-  <div class="row">
-    <div class="col-md-6 form-horizontal">
+        <button class="btn btn-primary"
+                title="Packet labelling"                
+                ng:click="openTab('Labeling', '', 'label')">
+          <i class="glyphicon glyphicon-cog"></i>
+        </button>
+      </div>
 
-      <div class="row">
-        <div class="col-md-2"></div>
-        <div class="col-md-2 bla-vsep">
-          <button class="btn btn-primary" ng:click="refreshTable()" title="Refresh data">
-            <i class="glyphicon glyphicon-refresh"></i>
-          </button>
-        </div>
-
-        <div class="col-md-6 bla-vsep">
+      <div class="form-group">
+        <div class="input-group">
           <input name="snapshotName" placeholder="Snapshot name"
-                 class="input-sm" ng:model="snapshotName"></input>
-          <button class="btn btn-primary btn-sm" ng:click="snapshotCreate()" title="Save presence snapshot">
-            <i class="glyphicon glyphicon-floppy-save"></i>
-          </button>
+                 class="form-control" ng:model="snapshotName"></input>
+          <span class="input-group-btn">
+            <button class="btn btn-primary" ng:click="snapshotCreate()" title="Save presence snapshot">
+              <i class="glyphicon glyphicon-floppy-save"></i>
+            </button>
+          </span>
         </div>
       </div>
-    </div>
-    <div class="col-md-6">
+      
     </div>
   </div>
 
-  <div class="row"> <!-- Option row -->
-    <div class="col-md-6 form-horizontal">
-      <div class="row bla-vsep">
-        <label class="col-md-2 control-label" for="time_window">Time window:</label>
-        <div id="time_window" ng:click="refreshTable()" class="col-md-10 btn-group">
-          <label class="btn btn-default" ng:model="timeWindow" btn-radio="10">10s</label>
-          <label class="btn btn-default" ng:model="timeWindow" btn-radio="60">60s</label>
-          <label class="btn btn-default" ng:model="timeWindow" btn-radio="120">2m</label>
-          <label class="btn btn-default" ng:model="timeWindow" btn-radio="600">10m</label>
-          <label class="btn btn-default" ng:model="timeWindow" btn-radio="3600">1h</label>
-          <label class="btn btn-default" ng:model="timeWindow" btn-radio="7200">2h</label>
-          <label class="btn btn-default" ng:model="timeWindow" btn-radio="28800">8h</label>
-          <label class="btn btn-default" ng:model="timeWindow" btn-radio="86400">24h</label>
-          <label class="btn btn-default" ng:model="timeWindow" btn-radio="0">all</label>
-        </div>
-      </div>
-    </div>
+  <!-- Options -->
+  <div class="row"> 
+    <div class="col-md-12">
+      <div class="form-inline">
+        <div class="form-group bla-vsep bla-rsep">
+          <label class="control-label" for="time_window">Time window: </label>
+          <div id="time_window" ng:click="refreshTable()" class="btn-group">
+            <label class="btn btn-default" ng:model="timeWindow" btn-radio="10">10s</label>
+            <label class="btn btn-default" ng:model="timeWindow" btn-radio="60">60s</label>
+            <label class="btn btn-default" ng:model="timeWindow" btn-radio="120">2m</label>
+            <label class="btn btn-default" ng:model="timeWindow" btn-radio="600">10m</label>
+            <label class="btn btn-default" ng:model="timeWindow" btn-radio="3600">1h</label>
+            <label class="btn btn-default" ng:model="timeWindow" btn-radio="7200">2h</label>
+            <label class="btn btn-default" ng:model="timeWindow" btn-radio="28800">8h</label>
+            <label class="btn btn-default" ng:model="timeWindow" btn-radio="86400">24h</label>
+            <label class="btn btn-default" ng:model="timeWindow" btn-radio="0">all</label>
+          </div>
+        </div>      
 
-    <div class="col-md-6 form-horizontal">
-      <div class="row bla-vsep">
-        <label class="col-md-2 control-label" for="refresh_interval">Refresh interval:</label>
-        <div id="refresh_interval" class="col-md-10 btn-group">
-          <label class="btn btn-default" ng:model="refreshInterval" btn-radio="0.5">instant</label>
-          <label class="btn btn-default" ng:model="refreshInterval" btn-radio="2">2s</label>
-          <label class="btn btn-default" ng:model="refreshInterval" btn-radio="10">10s</label>
-          <label class="btn btn-default" ng:model="refreshInterval" btn-radio="60">1m</label>
-          <label class="btn btn-default" ng:model="refreshInterval" btn-radio="120">5m</label>
-          <label class="btn btn-default" ng:model="refreshInterval" btn-radio="'pause'">pause</label>
+        <div class="form-group bla-vsep bla-rsep">
+          <label class="control-label" for="refresh_interval">Refresh interval:</label>
+          <div id="refresh_interval" class="btn-group">
+            <label class="btn btn-default" ng:model="refreshInterval" btn-radio="0.5">instant</label>
+            <label class="btn btn-default" ng:model="refreshInterval" btn-radio="2">2s</label>
+            <label class="btn btn-default" ng:model="refreshInterval" btn-radio="10">10s</label>
+            <label class="btn btn-default" ng:model="refreshInterval" btn-radio="60">1m</label>
+            <label class="btn btn-default" ng:model="refreshInterval" btn-radio="120">5m</label>
+            <label class="btn btn-default" ng:model="refreshInterval" btn-radio="'pause'">pause</label>
+          </div>
+        </div>
+
+        <div class="form-group bla-vsep">
+          <label class="control-label" for="table_sort">Ordering:</label>
+          <div id="table_sort" ng:click="refreshTable()" class="btn-group">
+            <label class="btn btn-default" ng:model="sort" btn-radio="'-meta.running_str'">strength</label>
+            <label class="btn btn-default" ng:model="sort" btn-radio="'-aggregate.last_seen'">last seen</label>
+            <label class="btn btn-default" ng:model="sort" btn-radio="'mac'">MAC</label>
+            <label class="btn btn-default" ng:model="sort" btn-radio="'-stat.all'">pkts</label>
+          </div>
         </div>
       </div>
     </div>
@@ -76,7 +94,9 @@
         </tr>
       </thead>
       <tbody>
-        <tr ng:click="openTab(host.mac, host.meta.ap, host.user.alias, 'sender')" ng:repeat="host in knowledge">
+        <tr class="bla-clickable"
+            ng:click="openTab(host.mac, host.user.alias, 'sender', {ap: host.meta.ap})"
+            ng:repeat="host in knowledge">
           <td ng:class="{'ap': host.meta.ap,
                         'client': !host.meta.ap}">
             <span class="bla-macalias" ng:if="host.alias">

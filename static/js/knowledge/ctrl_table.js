@@ -7,37 +7,48 @@ app.controller("TableCtrl", function($scope, $http, $interval, $log) {
     /* Parameters */
     $scope.timeWindow = 120;
     $scope.refreshInterval = 10;
+    $scope.refreshing = false;
+
     $scope.snapshotName = '';
 
     $scope.knowledge = null;
     $scope.knowledge_by_mac = null;
+    $scope.sort = '-meta.running_str';
 
     var refreshPromise = null;
 
-    var debug_open = true;
+    var debug_open = false; /* Turn true to disable */
 
     /*
      * Callers / main functions
      */
     $scope.refreshTable = function() {
         function handle_success(knowledge, knowledge_by_mac) {
+            $scope.refreshing = false;
             $scope.knowledge = knowledge;
             $scope.knowledge_by_mac = knowledge_by_mac;
 
-            /* DEBU OPEN ALL */
+            /* DEBUG OPEN ALL */
             if (debug_open == false) {
                 debug_open = true;
                 var sender = knowledge[0];
                 var mac = sender.mac;
-                $scope.openTab(mac, sender.meta.ap, sender.user.alias, 'sender');
-                $scope.openTab(mac, sender.meta.ap, sender.user.alias, 'charts');
+                $scope.openTab(mac, sender.user.alias, 'sender',  {ap: sender.meta.ap});
+                $scope.openTab(mac, sender.user.alias, 'charts',  {ap: sender.meta.ap});
+                $scope.openTab(mac, sender.user.alias, 'graphs',  {ap: sender.meta.ap});
             }
         }
 
+        function error() {
+            $scope.refreshing = false;
+        }
+
+        $scope.refreshing = true;
         $scope.loadKnowledge({
             'time_window': $scope.timeWindow,
-            'sort': '-meta.running_str',
-            'success': handle_success
+            'sort': $scope.sort,
+            'success': handle_success,
+            'error': error
         });
     };
 
@@ -62,8 +73,6 @@ app.controller("TableCtrl", function($scope, $http, $interval, $log) {
             'timeWindow': $scope.timeWindow
         });
     };
-
-    $log.info('Table loaded');
 });
 
 

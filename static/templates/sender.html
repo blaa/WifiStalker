@@ -1,5 +1,4 @@
 <div ng:controller="SenderCtrl">
-
   <!-- Data -->
   <div class="row">
     <div class="col-md-6"> <!-- left col -->
@@ -10,23 +9,27 @@
         </div>
 
         <div class="col-md-4 bla-vsep">
-          <button class="btn btn-primary" ng:click="refreshSender()" title="Refresh data">
-            <i class="glyphicon glyphicon-refresh"></i>
+          <button ng:disabled="refreshing == true"
+                  ng:click="refreshSender()" 
+                  class="btn btn-primary" title="Refresh data">
+            <i ng:class="{'glyphicon-refresh-animate': refreshing == true}"
+               class="glyphicon glyphicon-refresh"></i>
           </button>
+          
           <button class="btn btn-primary" title="Show charts and relations"
-                  ng:click="openTab(sender.mac, sender.meta.ap, sender.user.alias, 'charts')">
+                  ng:click="openTab(sender.mac, sender.user.alias, 'charts', {ap: sender.meta.ap})">
             <i class="glyphicon glyphicon-stats"></i>
           </button>
 
           <button class="btn btn-primary" title="Display relations"
-                  ng:click="openTab(sender.mac, sender.meta.ap, sender.user.alias, 'geo')">
+                  ng:click="openTab(sender.mac, sender.user.alias, 'graphs', {ap: sender.meta.ap})">
             <i class="glyphicon glyphicon-eye-open"></i>
             <!-- <i class="glyphicon glyphicon-record"></i> -->
           </button>
 
           <button ng:if="sender.meta.geo.length > 0"
                   class="btn btn-primary" title="Show recorded positions"
-                  ng:click="openTab(sender.mac, sender.meta.ap, sender.user.alias, 'geo')">
+                  ng:click="openTab(sender.mac, sender.user.alias, 'geo', {ap: sender.meta.ap})">
             <i class="glyphicon glyphicon-map-marker"></i>
           </button>
         </div>

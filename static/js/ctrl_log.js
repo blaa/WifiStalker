@@ -13,7 +13,7 @@ app.controller("LogCtrl", function($scope, $http, $interval) {
     };
 
     // Auto refresh
-    $interval($scope.loadData, 5000);
+    $interval($scope.loadData, 10000);
 });
 
 

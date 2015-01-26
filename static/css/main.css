@@ -5,15 +5,15 @@
 
 /* Navbar fix */
 .navbar-nav > li >a:focus {
-outline: none;
+    outline: none;
+}
+
+.nav-tabs a {
+    outline: none;
 }
 
 body {
     padding-top: 55px;
-}
-
-td.ap {
-    /*color: gray; */
 }
 
 td.client {
@@ -77,7 +77,29 @@ tab-heading:hover .bla-close {
     display: none;
 }
 
+
+
+.bla-vsep {
+    margin-top: 10px;
+}
+
+.bla-rsep {
+    margin-right: 10px;
+}
+
+.bla-clickable {
+    cursor: pointer;
+}
+
 /* SSIDs */
+.bla-client {
+    font-weight: bold;
+}
+
+.bla-ap {
+    font-weight: bold;
+}
+
 .bla-probes {
     font-weight: bold;
 }
@@ -89,8 +111,29 @@ tab-heading:hover .bla-close {
     font-style: italic;
 }
 
-.bla-vsep {
-    margin-top: 10px;
+/* END OF SSIDs */
+
+
+/* Refresh spinner */
+.glyphicon-refresh-animate {
+    -animation: spin .7s infinite linear;
+    -ms-animation: spin .7s infinite linear;
+    -webkit-animation: spinw .7s infinite linear;
+    -moz-animation: spinm .7s infinite linear;
 }
 
-/* END OF SSIDs */
+@keyframes spin {
+    from { transform: scale(1) rotate(0deg);}
+    to { transform: scale(1) rotate(360deg);}
+}
+
+@-webkit-keyframes spinw {
+    from { -webkit-transform: rotate(0deg);}
+    to { -webkit-transform: rotate(360deg);}
+}
+
+@-moz-keyframes spinm {
+    from { -moz-transform: rotate(0deg);}
+    to { -moz-transform: rotate(360deg);}
+} 
+
