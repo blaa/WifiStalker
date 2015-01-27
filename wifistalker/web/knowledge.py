@@ -31,14 +31,30 @@ def get_knowledge():
     for_web = []
     for sender in knowledge:
         sender = sender.get_dict()
-        # These can be huge and aren't displayed
         if mac is None:
             # Limit assocs / dsts in response for the table, keep in directed questions
-            sender['aggregate']['assocs'] = len(sender['aggregate']['assocs'])
-            sender['aggregate']['dsts'] = len(sender['aggregate']['dsts'])
+            sender['aggregate']['tags_dst'] = len(sender['aggregate']['tags_dst'])
+        else:
+            # List instead of dict + sort it in Python
+            dsts = [(mac, tags)
+                    for mac, tags in sender['aggregate']['tags_dst'].iteritems()]
+            dsts.sort(key=lambda x: x[1]['_sum'], reverse=True)
+            sender['aggregate']['tags_dst'] = dsts
+
         for_web.append(sender)
 
-    return jsonify({'knowledge': for_web})
+    if mac is not None:
+        # Add additional related data
+        sender = for_web[0]
+        related_macs = [m for m, t in sender['aggregate']['tags_dst']]
+        mapping = g.db.knowledge.alias_query(related_macs)
+    else:
+        mapping = None
+
+    return jsonify({
+        'knowledge': for_web,
+        'related': mapping,
+    })
 
 @api.route('/snapshot', methods=['POST'])
 def post_snapshot():

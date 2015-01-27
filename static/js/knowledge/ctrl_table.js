@@ -14,7 +14,6 @@ app.controller("TableCtrl", function($scope, $http, $interval, $log) {
     $scope.snapshotName = '';
 
     $scope.knowledge = null;
-    $scope.knowledge_by_mac = null;
     $scope.sort = '-meta.running_str';
 
     var refreshPromise = null;
@@ -25,10 +24,9 @@ app.controller("TableCtrl", function($scope, $http, $interval, $log) {
      * Callers / main functions
      */
     $scope.refreshTable = function() {
-        function handle_success(knowledge, knowledge_by_mac) {
+        function handle_success(knowledge, related) {
             $scope.refreshing = false;
             $scope.knowledge = knowledge;
-            $scope.knowledge_by_mac = knowledge_by_mac;
 
             /* DEBUG OPEN ALL */
             if (debug_open == false) {

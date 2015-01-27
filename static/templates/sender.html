@@ -168,21 +168,26 @@
               <th>HTTP/S</th>
 
             </tr>
-            <tr ng:repeat="(mac, tags) in sender.aggregate.tags_dst">
-              <td>{{ mac }}</td>
-              <td>{{ tags._sum || 0 }}</td>
-              <td>{{ tags.DATA || 0 }}</td>
-              <td>{{ tags.MGMT || 0 }}</td>
-              <td>{{ tags.PROBE_REQ || 0 }}</td>
-              <td>{{ tags.PROBE_RESP || 0}}</td>
-              <td>{{ tags.ASSOC_REQ || 0 }}</td>
-              <td>{{ tags.ASSOC_RESP || 0}}</td>
-              <td>{{ tags.DISASS || 0}}</td>
-              <td>{{ tags.BEACON || 0}}</td>
+            <tr ng:repeat="entry in sender.aggregate.tags_dst">
+              <td
+                 ng:click="openTab(entry[0], related[entry[0]], 'sender')"
+                 ng:if="related.hasOwnProperty(entry[0])">
+                <a href="">{{entry[0]}} <span ng:if="related[entry[0]]">({{related[entry[0]]}})</span></a>
+              </td>
+              <td ng:if="!related.hasOwnProperty(entry[0])">{{entry[0]}}</td>
+              <td>{{ entry[1]._sum || 0 }}</td>
+              <td>{{ entry[1].DATA || 0 }}</td>
+              <td>{{ entry[1].MGMT || 0 }}</td>
+              <td>{{ entry[1].PROBE_REQ || 0 }}</td>
+              <td>{{ entry[1].PROBE_RESP || 0}}</td>
+              <td>{{ entry[1].ASSOC_REQ || 0 }}</td>
+              <td>{{ entry[1].ASSOC_RESP || 0}}</td>
+              <td>{{ entry[1].DISASS || 0}}</td>
+              <td>{{ entry[1].BEACON || 0}}</td>
 
-              <td>{{ tags.IP || 0}}</td>
-              <td>{{ tags.DNS || 0}}</td>
-              <td>{{ tags.HTTP || 0}}/{{ tags.HTTPS || 0}}</td>
+              <td>{{ entry[1].IP || 0}}</td>
+              <td>{{ entry[1].DNS || 0}}</td>
+              <td>{{ entry[1].HTTP || 0}}/{{ entry[1].HTTPS || 0}}</td>
           </table>
 
         </div>
@@ -190,8 +195,4 @@
 
     </div> <!-- End left col -->
   </div>
-
-  <pre>
-    {{ sender |json }}
-  </pre>
 </div>

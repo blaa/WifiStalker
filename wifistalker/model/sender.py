@@ -39,7 +39,6 @@ class Sender(object):
             self.aggregate = db_entry['aggregate']
 
             # Convert aggregate to default dicts
-            self.aggregate['dsts'] = defaultdict(lambda: 0, self.aggregate['dsts'])
             self.aggregate['tags_dst'] = defaultdict(lambda: defaultdict(lambda: 0),
                                                      self.aggregate['tags_dst'])
             for k, v in self.aggregate['tags_dst'].iteritems():
@@ -55,7 +54,6 @@ class Sender(object):
         "Get dictionary describing sender without special objects"
         # Drop defaultdicts
         aggregate = self.aggregate.copy()
-        aggregate['dsts'] = dict(aggregate['dsts'])
         aggregate['tags_dst'] = dict(aggregate['tags_dst'])
         for k, v in aggregate['tags_dst'].iteritems():
             aggregate['tags_dst'][k] = dict(v)
@@ -133,14 +131,8 @@ class Sender(object):
             'ssid_beacon': [],
             'ssid_other': [],
 
-            # All association tries
-            'assocs': [],
-
-            # All found packet destinations
-            'dsts': defaultdict(lambda: 0), # {MAC -> number of packets}
-
             # Packet destinations broken by comm type.
-            'tags_dst': defaultdict(lambda: defaultdict(lambda: 0)), # {FLAG -> {MAC->packet count}}
+            'tags_dst': defaultdict(lambda: defaultdict(lambda: 0)), # {MAC -> {FLAG->packet count}}
 
             # Aggregated tags
             'tags': [],
@@ -163,10 +155,7 @@ class Sender(object):
 
     def add_dst(self, mac_dst, tags):
         "Update destination data"
-        dsts = self.aggregate['dsts']
         tags_dst = self.aggregate['tags_dst']
-        dsts[mac_dst] += 1
-
         for tag in tags:
             tags_dst[mac_dst][tag] += 1
         tags_dst[mac_dst]['_sum'] += 1

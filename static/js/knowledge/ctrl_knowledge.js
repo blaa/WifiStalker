@@ -24,14 +24,8 @@ app.controller("KnowledgeCtrl", function($scope, $http, $log) {
         function handle_success(data, status) {
             $scope.load_fail = false;
 
-            /* Reindex by MAC */
-            var knowledge_by_mac = {};
-            for (var i in data.knowledge) {
-                var host = data.knowledge[i];
-                knowledge_by_mac[host.mac] = host;
-            }
             if (args.success)
-                args.success(data.knowledge, knowledge_by_mac);
+                args.success(data.knowledge, data.related);
         }
 
         function handle_error() {

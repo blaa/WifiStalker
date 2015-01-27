@@ -1,6 +1,29 @@
 // Author: Tomasz bla Fortuna
 // License: MIT
 
+app.filter('orderByPackets', function() {
+    return function(input, attr) {
+        console.log('called with', input, attr);
+        if (!angular.isObject(input))
+            return input;
+
+        /* Create an array */
+        var array = [];
+        for (var key in input) {
+            array.push((key, input[key]));
+        }
+
+        /* Sort it */
+        array.sort(function(a, b) {
+            a = a[attr];
+            b = b[attr];
+            return a - b;
+        });
+        return array;
+    };
+});
+
+
 app.controller("SenderCtrl", function($scope, $http, $interval, $log) {
     /*
      * Inherited:
@@ -8,15 +31,17 @@ app.controller("SenderCtrl", function($scope, $http, $interval, $log) {
      */
     $scope.mac = $scope.tab.id;
     $scope.sender = undefined;
+    $scope.related = undefined;
     $scope.refreshing = false;
 
     /*
      * Helper functions
      */
     $scope.refreshSender = function() {
-        function setSenderData(knowledge, knowledge_by_mac) {
+        function setSenderData(knowledge, related) {
             $scope.refreshing = false;
             $scope.sender = knowledge[0];
+            $scope.related = related;
 
             /* Update tabs names */
             $scope.renameTabs($scope.mac, $scope.sender.user.alias);
@@ -43,7 +68,7 @@ app.controller("SenderCtrl", function($scope, $http, $interval, $log) {
      */
     $scope.saveTab = function(tab) {
         function success(data) {
-            if (data['OK'] != true) 
+            if (data['OK'] != true)
                 return;
 
             $scope.renameTabs($scope.mac, $scope.sender.user.alias);
@@ -60,4 +85,3 @@ app.controller("SenderCtrl", function($scope, $http, $interval, $log) {
         $scope.loadKnowledge();
     };
 });
-

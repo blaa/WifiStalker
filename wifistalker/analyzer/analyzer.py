@@ -58,13 +58,6 @@ class Analyzer(object):
 
         if 'ASSOC_REQ' in tags:
             stat['assoc_req'] += 1
-
-            if (frame['dst']
-                and frame['dst'] != 'ff:ff:ff:ff:ff:ff'
-                and frame['dst'] not in aggregate['assocs']):
-                # Add association:
-                aggregate['assocs'].append(frame['dst'])
-
         elif 'ASSOC_RESP' in tags:
             stat['assoc_resp'] += 1
         elif 'PROBE_REQ' in tags:
@@ -155,7 +148,8 @@ class Analyzer(object):
                 self._analyze_frame(sender, frame)
                 last_stamp = frame['stamp']
                 if (cnt+1) % 10000 == 0:
-                    print "Done {0} frames, last stamp is {1};".format(cnt, last_stamp)
+                    now = time()
+                    print "Done {0} frames, last is {1} seconds ago;".format(cnt+1, now-last_stamp)
                     self.watchdog.dontkillmeplease()
             s = "Analyzed {0} frames, last stamp is {1}; Analyzed total={2[analyzed]}"
             frames_total += cnt

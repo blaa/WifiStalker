@@ -94,6 +94,20 @@ class Knowledge(object):
         return Sender.create_from_db(senders)
 
 
+    def alias_query(self, mac_list):
+        "Given a list of MAC addresses return a mapping mac -> alias"
+        where = {
+            'mac': {
+                '$in': [m.lower() for m in mac_list]
+            }
+        }
+        result = self.knowledge.find(where, {'mac': 1, 'user.alias': 1})
+        mapping = {}
+        for entry in result:
+            mapping[entry['mac']] = entry['user']['alias']
+        return mapping
+
+
     def sender_store(self, sender):
         "Write sender back to the database while handling optimistic locking"
         if sender.version is None:
