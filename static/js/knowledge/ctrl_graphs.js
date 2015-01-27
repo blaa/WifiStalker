@@ -1,3 +1,6 @@
+// Author: Tomasz bla Fortuna
+// License: MIT
+
 app.directive('wifiGraph', function() {
     return {
         restrict: 'A',

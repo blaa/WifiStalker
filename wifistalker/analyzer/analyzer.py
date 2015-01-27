@@ -75,6 +75,10 @@ class Analyzer(object):
             stat['disass'] += 1
         elif 'BEACON' in tags:
             stat['beacons'] += 1
+        elif 'DATA' in tags:
+            stat['data'] += 1
+        elif 'IP' in tags:
+            stat['ip'] += 1
 
         stat['all'] += 1
 
@@ -103,11 +107,8 @@ class Analyzer(object):
                 """
 
 
-        if (frame['dst']
-            and frame['dst'] != 'ff:ff:ff:ff:ff:ff'
-            and frame['dst'] not in aggregate['dsts']):
-            # Add destination:
-            aggregate['dsts'].append(frame['dst'])
+        if frame['dst']:
+            sender.add_dst(frame['dst'], tags)
 
         if frame['strength']:
             sender.meta['running_str'] = (sender.meta['running_str'] * 10.0 + frame['strength']) / 11.0

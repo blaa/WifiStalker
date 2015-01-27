@@ -1,7 +1,9 @@
+// Author: Tomasz bla Fortuna
+// License: MIT
+
 /*
  * Handle data for knowledge view, has two children controllers - table and sender.
  */
-
 app.controller("KnowledgeCtrl", function($scope, $http, $log) {
     /* Opened senders tab */
     $scope.detailsTabs = [];

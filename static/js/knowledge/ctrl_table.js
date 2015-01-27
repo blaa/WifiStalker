@@ -1,3 +1,5 @@
+// Author: Tomasz bla Fortuna
+// License: MIT
 
 app.controller("TableCtrl", function($scope, $http, $interval, $log) {
     /*

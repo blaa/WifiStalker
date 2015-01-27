@@ -1,6 +1,8 @@
 # Author: Tomasz bla Fortuna
 # License: GPLv2
 
+from collections import defaultdict
+
 class Sender(object):
     """Aggregated knowledge about a single Sender.
 
@@ -35,6 +37,14 @@ class Sender(object):
             self.meta = db_entry['meta']
             self.events = db_entry['events']
             self.aggregate = db_entry['aggregate']
+
+            # Convert aggregate to default dicts
+            self.aggregate['dsts'] = defaultdict(lambda: 0, self.aggregate['dsts'])
+            self.aggregate['tags_dst'] = defaultdict(lambda: defaultdict(lambda: 0),
+                                                     self.aggregate['tags_dst'])
+            for k, v in self.aggregate['tags_dst'].iteritems():
+                self.aggregate['tags_dst'][k] = defaultdict(lambda: 0, v)
+
         except KeyError:
             print "Invalid scheme version, available keys:"
             print db_entry.keys()
@@ -42,14 +52,22 @@ class Sender(object):
             raise
 
     def get_dict(self):
+        "Get dictionary describing sender without special objects"
+        # Drop defaultdicts
+        aggregate = self.aggregate.copy()
+        aggregate['dsts'] = dict(aggregate['dsts'])
+        aggregate['tags_dst'] = dict(aggregate['tags_dst'])
+        for k, v in aggregate['tags_dst'].iteritems():
+            aggregate['tags_dst'][k] = dict(v)
+
         return {
             'mac': self.mac,
             'version': self.version,
-            'user': self.user,
-            'meta': self.meta,
-            'stat': self.stat,
-            'events': self.events,
-            'aggregate': self.aggregate,
+            'user': self.user.copy(),
+            'meta': self.meta.copy(),
+            'stat': self.stat.copy(),
+            'events': self.events[:],
+            'aggregate': aggregate,
         }
 
     def reset(self, mac=None, hard=False):
@@ -84,6 +102,8 @@ class Sender(object):
             'probe_req': 0,
             'probe_resp': 0,
             'disass': 0,
+            'data': 0,
+            'ip': 0,
             'all': 0,
         }
 
@@ -117,7 +137,10 @@ class Sender(object):
             'assocs': [],
 
             # All found packet destinations
-            'dsts': [],
+            'dsts': defaultdict(lambda: 0), # {MAC -> number of packets}
+
+            # Packet destinations broken by comm type.
+            'tags_dst': defaultdict(lambda: defaultdict(lambda: 0)), # {FLAG -> {MAC->packet count}}
 
             # Aggregated tags
             'tags': [],
@@ -137,6 +160,17 @@ class Sender(object):
         self.user['alias'] = alias
         self.user['owner'] = owner
         self.user['notes'] = notes
+
+    def add_dst(self, mac_dst, tags):
+        "Update destination data"
+        dsts = self.aggregate['dsts']
+        tags_dst = self.aggregate['tags_dst']
+        dsts[mac_dst] += 1
+
+        for tag in tags:
+            tags_dst[mac_dst][tag] += 1
+        tags_dst[mac_dst]['_sum'] += 1
+
 
     def add_geo(self, location):
         """Add geographical tag to the sender

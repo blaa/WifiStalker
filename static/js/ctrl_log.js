@@ -1,3 +1,6 @@
+// Author: Tomasz bla Fortuna
+// License: MIT
+
 /* Log controller */
 app.controller("LogCtrl", function($scope, $http, $interval) {
     $scope.logs = [];

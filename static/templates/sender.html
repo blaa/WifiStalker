@@ -1,7 +1,7 @@
 <div ng:controller="SenderCtrl">
   <!-- Data -->
   <div class="row">
-    <div class="col-md-6"> <!-- left col -->
+    <div class="col-md-8"> <!-- left col -->
 
       <!-- Buttons -->
       <div class="row" >
@@ -10,12 +10,12 @@
 
         <div class="col-md-4 bla-vsep">
           <button ng:disabled="refreshing == true"
-                  ng:click="refreshSender()" 
+                  ng:click="refreshSender()"
                   class="btn btn-primary" title="Refresh data">
             <i ng:class="{'glyphicon-refresh-animate': refreshing == true}"
                class="glyphicon glyphicon-refresh"></i>
           </button>
-          
+
           <button class="btn btn-primary" title="Show charts and relations"
                   ng:click="openTab(sender.mac, sender.user.alias, 'charts', {ap: sender.meta.ap})">
             <i class="glyphicon glyphicon-stats"></i>
@@ -73,7 +73,7 @@
         </div>
       </form>
 
-<!-- Static info -->
+      <!-- Static info -->
 
       <div class="row form-horizontal">
         <label class="col-md-2 control-label">Probed SSIDs</label>
@@ -94,19 +94,14 @@
         </p>
       </div>
 
-<!-- FIXME - knowledge_by_mac doesn't exist, but was limited to0 -->
-
       <div class="row form-horizontal">
-        <label class="col-md-2 control-label">Destinations</label>
-        <p class="col-md-10 form-control-static">
-          <span ng:repeat="dst in sender.aggregate.dsts">
-            <a href=""
-               ng:if="knowledge_by_mac.hasOwnProperty(dst)"
-               ng:click="openTab(dst)">{{dst}}; </a>
-            <span ng:if="!knowledge_by_mac.hasOwnProperty(dst)">{{dst}}; </span>
-          </span>
-        </p>
+        <label class="col-md-2 control-label">First seen</label>
+        <p class="col-md-4 form-control-static">{{sender.aggregate.first_seen*1000 | date:'yyyy-MM-dd HH:mm:ss'}}</p>
+
+        <label class="col-md-2 control-label">Last seen</label>
+        <p class="col-md-4 form-control-static">{{sender.aggregate.last_seen*1000 | date:'yyyy-MM-dd HH:mm:ss'}}</p>
       </div>
+
 
       <div ng:repeat="loc in sender.meta.geo">
         <div class="row form-horizontal">
@@ -122,14 +117,6 @@
       </div>
 
       <div class="row form-horizontal">
-        <label class="col-md-2 control-label">First seen</label>
-        <p class="col-md-4 form-control-static">{{sender.aggregate.first_seen*1000 | date:'yyyy-MM-dd HH:mm:ss'}}</p>
-
-        <label class="col-md-2 control-label">Last seen</label>
-        <p class="col-md-4 form-control-static">{{sender.aggregate.last_seen*1000 | date:'yyyy-MM-dd HH:mm:ss'}}</p>
-      </div>
-
-      <div class="row form-horizontal">
         <div class="col-md-12">
           <table class="table table-striped">
             <tr>
@@ -140,6 +127,8 @@
               <th>assoc resp</th>
               <th>probe req</th>
               <th>probe resp</th>
+              <th>data</th>
+              <th>ip</th>
             </tr>
             <tr>
               <td>{{sender.stat.all}}</td>
@@ -148,9 +137,54 @@
               <td>{{sender.stat.assoc_req}}</td>
               <td>{{sender.stat.assoc_resp}}</td>
               <td>{{sender.stat.probe_req}}</td>
-              <td>{{sender.stat.probe_resp}}</td>
+              <td>{{sender.stat.data}}</td>
+              <td>{{sender.stat.ip || 0}}</td>
             </tr>
           </table>
+        </div>
+      </div>
+
+
+      <!-- FIXME - knowledge_by_mac doesn't exist, but was limited too -->
+      <div class="row form-horizontal">
+        <div class="col-md-12">
+          <table class="table table-striped">
+            <tr>
+              <th>destination</th>
+              <th>Total</th>
+              <th>DATA</th>
+              <th>MGMT</th>
+              <th>PROBE_REQ</th>
+              <th>PROBE_RESP</th>
+
+              <th>ASSOC_REQ</th>
+              <th>ASSOC_RESP</th>
+
+              <th>DISASS</th>
+              <th>BEACON</th>
+
+              <th>IP</th>
+              <th>DNS</th>
+              <th>HTTP/S</th>
+
+            </tr>
+            <tr ng:repeat="(mac, tags) in sender.aggregate.tags_dst">
+              <td>{{ mac }}</td>
+              <td>{{ tags._sum || 0 }}</td>
+              <td>{{ tags.DATA || 0 }}</td>
+              <td>{{ tags.MGMT || 0 }}</td>
+              <td>{{ tags.PROBE_REQ || 0 }}</td>
+              <td>{{ tags.PROBE_RESP || 0}}</td>
+              <td>{{ tags.ASSOC_REQ || 0 }}</td>
+              <td>{{ tags.ASSOC_RESP || 0}}</td>
+              <td>{{ tags.DISASS || 0}}</td>
+              <td>{{ tags.BEACON || 0}}</td>
+
+              <td>{{ tags.IP || 0}}</td>
+              <td>{{ tags.DNS || 0}}</td>
+              <td>{{ tags.HTTP || 0}}/{{ tags.HTTPS || 0}}</td>
+          </table>
+
         </div>
       </div>
 
