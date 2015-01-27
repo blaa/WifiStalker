@@ -17,11 +17,11 @@ db = None
 from static import static
 from knowledge import api as api_knowledge
 from graphs import api as api_graph
-from map import api as api_map
+#from map import api as api_map
 
 app.register_blueprint(static) # url_prefix=/
 app.register_blueprint(api_knowledge, url_prefix='/api')
-app.register_blueprint(api_map, url_prefix='/api')
+#app.register_blueprint(api_map, url_prefix='/api')
 app.register_blueprint(api_graph, url_prefix='/api/graph')
 
 @app.before_request

@@ -4,7 +4,7 @@
 import re
 from time import time
 
-from presence import PresenceSnapshot
+#from presence import PresenceSnapshot
 from sender import Sender
 
 class Knowledge(object):
@@ -38,14 +38,18 @@ class Knowledge(object):
     def _load_vendors(self):
         "Load vendors from OUI file"
         self.vendors = {}
-        with open('oui.txt', 'r') as f:
-            for line in f:
-                m = re.match(r'^  ([0-9A-Z]{6}) +\(base 16\)[ \t]+(.*)$', line)
-                if m is None:
-                    continue
-                mac, vendor = m.groups()
-                self.vendors[mac] = vendor
-            print "Registered", len(self.vendors), "vendors"
+        try:
+            with open('oui.txt', 'r') as f:
+                for line in f:
+                    m = re.match(r'^  ([0-9A-Z]{6}) +\(base 16\)[ \t]+(.*)$', line)
+                    if m is None:
+                        continue
+                    mac, vendor = m.groups()
+                    self.vendors[mac] = vendor
+                print "Registered", len(self.vendors), "vendors"
+        except IOError:
+            print "Unable to open oui.txt - won't load and resolve producers"
+            self.vendors = {}
 
     def get_vendor(self, mac):
         "Determine vendor by MAC"

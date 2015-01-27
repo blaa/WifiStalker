@@ -7,7 +7,7 @@ import datetime
 
 from frames import Frames
 from knowledge import Knowledge
-from map import Map
+#from map import Map
 from geo import Geo
 from graph import Graph
 
@@ -25,7 +25,7 @@ class DB(object):
         # Open subcollections
         self.knowledge = Knowledge(self)
         self.frames = Frames(self)
-        self.map = Map(self)
+        #self.map = Map(self)
         self.geo = Geo(self)
 
         # Logging
