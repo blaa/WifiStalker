@@ -2,11 +2,11 @@
 
 Trying to name things:
 
-Sender / Host - any 802.11 transmitter
-Client - wifi client, probably a mobile device, also: Station
-AP - access point
-Knowledge - aggregated information on Senders.
-Event - seeing a client on the ether for a period of time.
+- Sender / Host - any 802.11 transmitter
+- Client - wifi client, probably a mobile device, also: Station
+- AP - access point
+- Knowledge - aggregated information on Senders.
+- Event - seeing a client on the ether for a period of time.
 
 # Features
 
@@ -41,11 +41,12 @@ Knowledge consists of:
 ## Web interface
 
 -   Clickable, interactive web application created with AngularJS,
-    Bootstrap and other - ChartJS.
+    Bootstrap and other - ChartJS. Responsive UI.
 -   Observing surroundings within specified time window (10s - 24h)
 -   Creating presence snapshots - currently present clients (within time
     window) on the context of surrounding APs.
 -   Investigating details about each sniffed node.
+-   See screenshots in docs/ for a feel.
 
 ## Marauder's Map
 
@@ -56,26 +57,20 @@ Knowledge consists of:
 
 # How to use
 
-## Start Mongo, create monitoring interface (iwconfig wlan0 mode monitor or airmon-ng start wlan1 )
-
-## Data sources / initialization:
-
-wget <http://www.ieee.org/netstorage/standards/oui.txt>
-wget &#x2013;no-check-certificate 'https://openwlanmap.org/db.tar.bz2'
-./wifistalker &#x2013;load-geo db/&#x2026;
-Vendors currently loaded on each start - FIXME.
-
-## Start sniffing process wifistalker -s
-
-You can name it with -l sniffer<sub>name</sub>. Not really usable at this
-point, but useful to distinguish parallel sniffers - they create a
-separate presence context.
-
-## Start analyzing process - wifistalker -a
-
-## Start webapp - wifistalker -w
-
-## Open page in your browser to see results.
+- Start Mongo
+- Create monitoring interface 
+  iwconfig wlan0 mode monitor or airmon-ng start wlan1
+- Download oui.txt 
+  wget <http://www.ieee.org/netstorage/standards/oui.txt>
+- Download OpenWlanMAP:
+  wget --no-check-certificate 'https://openwlanmap.org/db.tar.bz2'
+  ./wifistalker --load-geo db/;
+- Start sniffing process wifistalker -s
+  You can name it with -l sniffer<sub>name</sub>. Not really usable at this
+  point, but useful to distinguish parallel sniffers.
+- Start analyzing process - wifistalker -a
+- Start webapp - wifistalker -w
+- Open page in your browser to see results.
 
 ## Tips:
 
@@ -84,7 +79,7 @@ pointed to the same mongodb backend. Run only single analyzer
 thread.
 
 If you don't purge \`all<sub>frames'</sub> table you can reanalyze your whole
-Knowledge.
+Knowledge with --analyze-full
 
 You can sniff with a detached device and then merge all<sub>frames</sub>
 tables into one (TODO: There should be an easy option for
@@ -110,92 +105,7 @@ with a wifi-based monitoring against a common robbery.
 # LICENSE
 
 Backend is licensed under GNU GPLv2 - mostly because it uses GPLv2
-Scapy. Frontend license might vary, it will probably be MIT.
+Scapy. Frontend license - MIT.
 
-# TODOs / Plan:
 
-## TODO Cleanup code, publish on github, add license
-
-## Sniffer
-
-### TODO Sniff for higher layers - IP, etc. And gather additional metadata.
-
-### TODO Detect automatically outlier packets
-
-### TODO Intelligent channel hopping / client following
-
-Aggregating beacons is simple, when sniffing for a client packet
-prelong a visit on a specified channel to sniff more of client
-communication - because of power savings those happen in bursts.
-
-### TODO I like using timestamps but datetime would probably be better.
-
-## Timetable / knowledge book
-
-### TODO ESSID tab - all clients calling this essid.
-
-### TODO Viewing and comparison of presence snapshots, existance in a presence dump
-
-### TODO Sorting and filtering for time table.
-
-### TODO Refresh interval selection.
-
-### DONE Create a service for diagram which shows better information.
-
-### DONE Knowledge book - page with details on cli/ap
-
-### DONE Return knowledge as an array, not dict, and sort in different ways.
-
-### Charts
-
-1.  TODO Add time range for strength chart
-
-2.  TODO Add refresh button
-
-3.  TODO Add graph display of relations.
-
-## Marauder's Map
-
-### Allow selecting BSSID in Map view and then placing it on map.
-
-### Localization services for map.
-
--   Dump place (almost works)
--   Dumped places (show)
--   Add map, change image
--   Show current sniffer localizations
--   IDEA: Rewind history and display different localizations (\`seen' on a map)
-
-## TODO Config view
-
-Allow for changing:
--   Seen algorithm parameters
--   Purge all<sub>frames</sub>
--   Get DB stats
-
-## Analyzer
-
-### Idea: Allow to mark specified time range as a sniffing in a particular location
-
-Then - automatically mark all bssids as located within this
-localization (home, work, tram, shop)
-
-### TODO \`event/Seen' knowledge should contain a context - visible BSSID during seeing.
-
-### TODO Fix \`event/seen' algorithm - nice parametrized filtering.
-
-### TODO Events should contain stamp of highest signal strength.
-
-### TODO If more time passed than current<sub>frames</sub> keep - use all<sub>frames</sub> for initialization automatically
-
-## Map
-
-### Map image changing / location changing.
-
-### Point removal
-
-### Placing Stations by click on the map.
-
-## Logs
-
-### Display controller on all views on the navbar
+# See README for org-mode TODO list and details.
