@@ -12,11 +12,9 @@ app.directive('wifiGraph', function() {
             scope.layouter = new Graph.Layout.Spring(scope.g);
             function update(newValue) {
                 if (!newValue) {
-                    console.log('Ignore update, no data');
                     return;
                 }
                 var canvas_id = scope.canvas.id;
-                console.log(canvas_id, scope.canvas);
 
                 /* Clear graph */
                 scope.g.nodes = [];
@@ -31,16 +29,15 @@ app.directive('wifiGraph', function() {
                     var node = newValue.nodes[i];
                     scope.g.addNode(node[0], node[1]);
                 }
-
                 /* Add edges */
+                var edge;
                 for (i in newValue.edges) {
-                    var edge = newValue.edges[i];
+                    edge = newValue.edges[i];
                     scope.g.addEdge(edge[0], edge[1], edge[2]);
                 }
-
                 scope.layouter.layout();
 
-                /* FIXME: It doesn't want to work not-by-id */
+                // FIXME: It doesn't want to work not-by-id
                 if (scope.renderer == undefined) {
                     scope.renderer = new Graph.Renderer.Raphael(canvas_id, scope.g, 1024, 768);
                 }
@@ -79,10 +76,10 @@ app.controller("GraphsCtrl", function($scope, $http, $interval, $log) {
             $scope.refreshing = false;
         }
 
-        // Get chart data
+        // Get graph data
         $http({
             method: 'GET',
-            url: '/api/graph/relations/' + $scope.mac,
+            url: '/api/graph/relations/' + $scope.mac + '/' + $scope.graphType,
             data: {}
         }).success(setGraphData).error(error);
     };

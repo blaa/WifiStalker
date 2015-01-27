@@ -25,7 +25,6 @@ class Graph(object):
             'stamp': {'$lt': now - config.graph_relations['cache_time']}
         })
 
-
         res = self.graphs.find({'mac': mac})
         if res.count() < 1:
             return None
@@ -112,6 +111,8 @@ class Graph(object):
         # Store to cache
         self.graphs.insert(self.graph)
 
+
+
     # Low-level functions
     def add_node(self, nid, label, fill, shape='ellipse', stroke=None, stroke_width=2):
         "Internal: Add a defined node"
@@ -123,6 +124,10 @@ class Graph(object):
             'type': shape,
             'stroke-width': stroke_width,
         }
+        collisions = [node for node in self.graph['nodes'] if node[0] == nid]
+        if collisions:
+            print "Node with ID={0} already exists - ignoring".format(nid)
+            return
         self.graph['nodes'].append((nid, opts))
 
     def add_sender(self, sender, fill, stroke=None, stroke_width=2):

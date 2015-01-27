@@ -33,6 +33,7 @@ app.controller("ChartsCtrl", function($scope, $http, $interval, $log) {
      * $scope.tab - this tab
      */
     $scope.mac = $scope.tab.id;
+    $scope.timeWindow = 24*60*60;
     $scope.chartData = undefined;
     $scope.refreshing = false;
 
@@ -54,7 +55,7 @@ app.controller("ChartsCtrl", function($scope, $http, $interval, $log) {
         // Get chart data
         $http({
             method: 'GET',
-            url: '/api/graph/strength/' + $scope.mac,
+            url: '/api/graph/strength/' + $scope.mac + '/' + $scope.timeWindow,
             data: {}
         }).success(setChartData).error(error);
     };

@@ -11,8 +11,8 @@ from flask import jsonify
 
 api = Blueprint('api_graph', __name__)
 
-@api.route('/strength/<mac>')
-def get_strength_chart(mac):
+@api.route('/strength/<mac>/<window>')
+def get_strength_chart(mac, window):
     "Get filtered strength chart data"
     labels = []
     data = []
@@ -26,8 +26,19 @@ def get_strength_chart(mac):
         ]
     }
 
-    # TODO: This could potentially be rewritten to use iterator.
-    iterator = g.db.frames.iterframes(src=mac, current=False)
+    now = time()
+    if window == 'all':
+        since = None
+    else:
+        try:
+            window = float(window)
+            since = now - window
+        except ValueError:
+            print "Invalid time value"
+            window = None
+
+    # TODO: This could potentially be rewritten to use iterator, instead of list()
+    iterator = g.db.frames.iterframes(src=mac, since=since, current=False)
     frames = list(iterator)
     frames_cnt = len(frames)
 
@@ -57,10 +68,11 @@ def get_strength_chart(mac):
 
     return jsonify({'chart': chart})
 
-@api.route('/relations/<mac>')
-def get_relations(mac):
+@api.route('/relations/<mac>/<graph_type>')
+def get_relations(mac, graph_type):
     ""
     graph = g.db.get_graph(mac)
     graph = graph.get()
-    del graph['_id']
+    if '_id' in graph:
+        del graph['_id']
     return jsonify({'graph': graph})
