@@ -1,6 +1,7 @@
 
 /* Create application */
-var app = angular.module('wifiStalker', ['ngRoute', 'ui.bootstrap']);
+var app = angular.module('wifiStalker', ['ngRoute', 'ui.bootstrap', 
+                                         'ui.bootstrap.datetimepicker']);
 
 /* Routing configuration */
 app.config(function($routeProvider, $locationProvider) {

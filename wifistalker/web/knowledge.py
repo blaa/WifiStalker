@@ -1,5 +1,6 @@
 # Author: Tomasz bla Fortuna
 # License: GPLv2
+import re
 
 from flask import Blueprint
 
@@ -22,6 +23,10 @@ def get_knowledge():
     time_window = request.args.get('time_window', None)
     sort = request.args.get('sort', 'last_seen')
     mac = request.args.get('mac', None)
+    ssid_filter = request.args.getlist('ssid', None)
+    tag_filter = request.args.getlist('tag', None)
+
+    print "ssids", ssid_filter
 
     if time_window:
         time_window = float(time_window)
@@ -31,6 +36,8 @@ def get_knowledge():
     for_web = []
     for sender in knowledge:
         sender = sender.get_dict()
+        if 'tags' in sender['user']:
+            sender['user']['tags'] = " ".join(sender['user']['tags'])
         if mac is None:
             # Limit assocs / dsts in response for the table, keep in directed questions
             sender['aggregate']['tags_dst'] = len(sender['aggregate']['tags_dst'])
@@ -80,6 +87,11 @@ def set_alias():
     alias = data.get('alias', None)
     notes = data.get('notes', None)
     owner = data.get('owner', None)
+    # Parse tags
+    tags = data.get('tags', '')
+    tags = re.findall('([+!@#$%^&*()0-9a-zA-Z_]+ ?)', tags, flags=re.UNICODE)
+    tags = [tag.strip() for tag in tags]
+
     if mac is None:
         return
     if not alias:  # '' -> None
@@ -96,7 +108,7 @@ def set_alias():
             return jsonify({'OK': False})
 
         sender = sender[0]
-        sender.set_userdata(alias, owner, notes)
+        sender.set_userdata(alias, owner, notes, tags)
         ret = g.db.knowledge.sender_store(sender)
         if ret is False:
             print "OPTIMISTIC LOCKING FAILED - retry", i

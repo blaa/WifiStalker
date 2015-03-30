@@ -1,5 +1,4 @@
 <div ng:controller="KnowledgeCtrl">
-
    <div ng:if="load_fail" class="alert alert-danger bla-vsep" role="alert">
     <span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>
     Failed to load knowledge data.
@@ -51,8 +50,8 @@
       <ng:include ng:if="tab.type == 'sender'" src="'/templates/sender.html'"></ng:include>
       <ng:include ng:if="tab.type == 'charts'" src="'/templates/charts.html'"></ng:include>
       <ng:include ng:if="tab.type == 'graphs'" src="'/templates/graphs.html'"></ng:include>
+      <ng:include ng:if="tab.type == 'tagging'" src="'/templates/tagging.html'"></ng:include>
     </tab>
-
 
   </tabset>
 </div> <!-- End of knowledge ctrl -->

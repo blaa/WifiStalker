@@ -1,29 +1,6 @@
 // Author: Tomasz bla Fortuna
 // License: MIT
 
-app.filter('orderByPackets', function() {
-    return function(input, attr) {
-        console.log('called with', input, attr);
-        if (!angular.isObject(input))
-            return input;
-
-        /* Create an array */
-        var array = [];
-        for (var key in input) {
-            array.push((key, input[key]));
-        }
-
-        /* Sort it */
-        array.sort(function(a, b) {
-            a = a[attr];
-            b = b[attr];
-            return a - b;
-        });
-        return array;
-    };
-});
-
-
 app.controller("SenderCtrl", function($scope, $http, $interval, $log) {
     /*
      * Inherited:
@@ -78,7 +55,8 @@ app.controller("SenderCtrl", function($scope, $http, $interval, $log) {
             'mac': $scope.sender.mac,
             'alias': $scope.sender.user.alias,
             'owner': $scope.sender.user.owner,
-            'notes': $scope.sender.user.notes
+            'notes': $scope.sender.user.notes,
+            'tags': $scope.sender.user.tags
         }).success(success);
 
 

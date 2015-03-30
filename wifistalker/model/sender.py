@@ -87,6 +87,7 @@ class Sender(object):
                 'owner': None,
                 'notes': None,
                 'alias': None,
+                'tags': [],
             }
         else:
             assert hasattr(self, 'user')
@@ -147,11 +148,13 @@ class Sender(object):
         )
         return s
 
-    def set_userdata(self, alias, owner, notes):
+    def set_userdata(self, alias, owner, notes, tags):
         "Set user data"
         self.user['alias'] = alias
         self.user['owner'] = owner
         self.user['notes'] = notes
+        assert isinstance(tags, list)
+        self.user['tags'] = tags
 
     def add_dst(self, mac_dst, tags):
         "Update destination data"

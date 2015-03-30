@@ -61,10 +61,11 @@ class PacketParser(object):
             # Additional TCP
             if hl['dport'] == 80:
                 # Parse start of HTTP header
-                print "QUE", tcp.payload
+                if str(tcp.payload).startswith('GET') or str(tcp.payload).startswith('POST'):
+                    print "QUE", repr(tcp.payload)
             if hl['sport'] == 80:
                 # Parse start of HTTP response
-                print "RES", tcp.payload
+                print "80", repr(tcp.payload)
             if 443 in ports:
                 data['tags'].add('HTTPS')
             if 80 in ports:

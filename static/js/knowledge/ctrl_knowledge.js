@@ -15,6 +15,8 @@ app.controller("KnowledgeCtrl", function($scope, $http, $log) {
             sort: '-aggregate.last_seen',
             mac: null,
             time_window: null,
+            ssid_filter: [],
+            tag_filter: [],
             success: null,
             error: null
         };
@@ -40,6 +42,8 @@ app.controller("KnowledgeCtrl", function($scope, $http, $log) {
             url: '/api/knowledge',
             params: {
                 time_window: args.time_window,
+                ssid: args.ssid_filter,
+                tag: args.tag_filter,
                 sort: args.sort,
                 mac: args.mac
             }

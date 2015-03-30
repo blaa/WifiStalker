@@ -106,14 +106,26 @@ class Analyzer(object):
         if frame['strength']:
             sender.meta['running_str'] = (sender.meta['running_str'] * 10.0 + frame['strength']) / 11.0
 
-        # Is it an AP or a client?
+        # Is it an AP or a client? By default - client, more points -
+        # more likely to be a station.
         # Phone can send beacons. But APs can send probes too.
-        if (stat['probe_req'] > 0
-            and len(aggregate['ssid_probe']) > len(aggregate['ssid_beacon'])):
-            sender.meta['ap'] = False
-        elif stat['beacons'] > 0:
-            sender.meta['ap'] = True
+        pts = 0
+        if stat['probe_resp'] > stat['probe_req']:
+            pts += 1
+        if (stat['beacons'] / stat['all'] * 100) > 50:
+            pts += 1
+        if stat['beacons'] == 0:
+            pts -= 1
+        pts += len(aggregate['ssid_beacon'])
+        pts -= len(aggregate['ssid_probe'])
 
+        if stat['probe_req'] > 0:
+            pts += 1
+
+        if pts >= 2:
+            sender.meta['ap'] = True
+        else:
+            sender.meta['ap'] = False
 
         """
         seen = {

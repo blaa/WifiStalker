@@ -126,7 +126,7 @@ class Graph(object):
         }
         collisions = [node for node in self.graph['nodes'] if node[0] == nid]
         if collisions:
-            print "Node with ID={0} already exists - ignoring".format(nid)
+            print "Node with ID={0} already exists - ignoring".format(repr(nid))
             return
         self.graph['nodes'].append((nid, opts))
 

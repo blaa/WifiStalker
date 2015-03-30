@@ -48,7 +48,7 @@ class Knowledge(object):
                     self.vendors[mac] = vendor
                 print "Registered", len(self.vendors), "vendors"
         except IOError:
-            print "Unable to open oui.txt - won't load and resolve producers"
+            print "Unable to open oui.txt - program won't resolve MAC addresses into producers"
             self.vendors = {}
 
     def get_vendor(self, mac):

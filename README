@@ -1,34 +1,58 @@
 # -*- mode: org coding: utf-8 -*-
 
+(set-default-font "Inconsolata 15")
+(color-theme-jsc-light)
+
+
 See README.md for generic description + HOWTO.
 
 * TODOs / Plan:
-** TODO Cleanup code, publish on github, add license
+** DONE Cleanup code, publish on github, add license
 
 ** Sniffer
-*** TODO Sniff for higher layers - IP, etc. And gather additional metadata.
+*** NEXT Sniff for higher layers - IP, etc. And gather additional metadata.
+**** DONE IP source/dest
+**** DONE TCP dport/sport + tagging
+**** Add analysis and display layer for HL data.
+**** Add DNS query parsing
+**** Add HTTP query parsing (URLs)
 *** TODO Detect automatically outlier packets
-*** TODO Intelligent channel hopping / client following
+    Useful for debugging and determining new fun ways of analysing traffic.
+*** DONE Intelligent channel hopping / client following
     Aggregating beacons is simple, when sniffing for a client packet
     prelong a visit on a specified channel to sniff more of client
     communication - because of power savings those happen in bursts.
+
+    Done using heuristic `karma' algorithm. Somebody check if it does
+    what says on the tin though. Works nice for me.
 *** TODO I like using timestamps but datetime would probably be better.
+*** TODO Handle better `other' essids - not probes, not beacons.
+    On 99% beacons I end up with 3 SSIDs being logged as probe, beacon and other.
 ** Timetable / knowledge book
 *** TODO ESSID tab - all clients calling this essid.
-*** TODO Viewing and comparison of presence snapshots, existance in a presence dump
-*** TODO Sorting and filtering for time table.
-*** TODO Refresh interval selection.
+*** TODO Presence snapshots
+**** TODO Creation of snapshot
+**** TODO Viewing and comparison of presence snapshots, existance in a presence dump.
+*** TODO Migrate knowledge table to ngTable.
+    Add filtering and pagination.
+*** DONE Sorting of knowledge table 
+*** DONE Refresh interval selection.
 *** DONE Create a service for diagram which shows better information.
 *** DONE Knowledge book - page with details on cli/ap
 *** DONE Return knowledge as an array, not dict, and sort in different ways.
 *** Charts
-**** TODO Add time range for strength chart
-**** TODO Add refresh button
-**** TODO Add graph display of relations.
+**** DONE Add time range for strength chart
+**** DONE Add refresh button*
+**** DONE Add graph display of relations.
+**** TODO Implement filtered essid chart
+**** TODO Implement destination chart
+**** TODO Implement location tags on charts.
 *** Splitting aggregated data and user data would render optimistic locking not needed.
+
 ** Marauder's Map
+*** TODO Add option for `painting' BSSIDs with location tags.
 *** Allow selecting BSSID in Map view and then placing it on map.
-*** Localization services for map.
+*** TODO Localization services for map.
     - Dump place (almost works)
     - Dumped places (show)
     - Add map, change image
@@ -41,14 +65,54 @@ See README.md for generic description + HOWTO.
    - Get DB stats
 
 ** Analyzer
-*** Idea: Allow to mark specified time range as a sniffing in a particular location
-    Then - automatically mark all bssids as located within this
-    localization (home, work, tram, shop)
-*** TODO Better mobile detection - sometimes they are both stations and clients.
-    And we want them to be treated as clients.
-*** TODO `event/Seen' knowledge should contain a context - visible BSSID during seeing.
-*** TODO Fix `event/seen' algorithm - nice parametrized filtering.
-*** TODO Events should contain stamp of highest signal strength.
+*** Idea: Tagging
+**** Tags are bound to APs/clients/knowledge
+**** Manual tagging and tag editing.
+**** Massive tagging by timerange. "All clients/aps seen within a range got tagged"
+**** Tagging inheritance / spreading
+     Certain tag types might get inherited. If a client is visible in
+     a proximity of the tagged AP - it gets the same tag.
+**** Tag aggregation in events.
+     All tags visible during an event are aggregated into event metadata.
+
+**** Usecase: Conference tagging with time 
+     Time period of a conference sniffing gets tagged with `hackcon'
+     tag - all APs, all clients. 
+
+     Then during a train ride it's possible to check if any
+     surrounding clients were on the conference. Or filter by tag and
+     view all events outside conference time.
+
+**** Usecase: Conference by APs
+     Tag manually conference/hotel/work APs with a tag like '+seccon'.
+     Then - each seen client within a proximity from this APs will get
+     +seccon tag as well.
+
+**** Usecase: Snapshoting
+     Instead of the dedicated snapshot option allow tagging currently seen clients/aps
+     Then allow searching by tags with AND option to get intersections.
+
+**** Option: Current tagging, tag everything currently seen, not in point, but continuous.
+
+**** Interface tagging:
+     Buttons for timerange selection (recent window)
+     Time range selection input which allow for window editing.
+     All, clients, aps - selection
+     Tag button
+
+
+*** DONE Better mobile detection - sometimes they are both stations and clients.
+    And we want them to be treated as clients.  Based on points -
+    needs fixes and checks. Works mostly good with few stations being
+    detected as clients rather than the other way around.
+*** TODO There's an error in packet statistics aggregation.
+
+*** TODO Event aggregation algorithm
+    Gather high-level information for given MACs - when we seen it,
+    for how long, with strength peak at which point of time.
+**** TODO `event/Seen' knowledge should contain a context - visible BSSID during seeing.
+**** TODO Fix `event/seen' algorithm - nice parametrized filtering.
+**** TODO Events should contain stamp of highest signal strength.
 *** TODO If more time passed than current_frames keep - use all_frames for initialization automatically
 
 ** Map
@@ -59,4 +123,3 @@ See README.md for generic description + HOWTO.
 
 ** Logs
 *** Display controller on all views on the navbar
-

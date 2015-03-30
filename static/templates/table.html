@@ -11,25 +11,34 @@
         </button>
 
         <button class="btn btn-primary"
-                title="Packet labelling"                
-                ng:click="openTab('Labeling', '', 'label')">
+                title="Packet tagging"                
+                ng:click="openTab('Tagging', '', 'tagging')">
           <i class="glyphicon glyphicon-cog"></i>
         </button>
       </div>
 
+    </div>
+  </div>
+
+  <div class="row bla-vsep">
+    <div class="col-md-12 form-inline">
+      Filters:
       <div class="form-group">
         <div class="input-group">
-          <input name="snapshotName" placeholder="Snapshot name"
-                 class="form-control" ng:model="snapshotName"></input>
-          <span class="input-group-btn">
-            <button class="btn btn-primary" ng:click="snapshotCreate()" title="Save presence snapshot">
-              <i class="glyphicon glyphicon-floppy-save"></i>
-            </button>
-          </span>
+          <input name="ssidFilter" placeholder="SSIDs"
+                 ng:list=", " ng:trim="true"
+                 class="form-control" ng:model="ssidFilter"></input>
+
+        </div>
+
+        <div class="input-group">
+          <input name="tagFilter" placeholder="TAGs"
+                 ng:list=", " ng:trim="true"
+                 class="form-control" ng:model="tagFilter"></input>
         </div>
       </div>
     </div>
-  </div>
+  </div>  
 
   <!-- Options -->
   <div class="row"> 
@@ -41,6 +50,7 @@
             <label class="btn btn-default" ng:model="timeWindow" btn-radio="10">10s</label>
             <label class="btn btn-default" ng:model="timeWindow" btn-radio="60">60s</label>
             <label class="btn btn-default" ng:model="timeWindow" btn-radio="120">2m</label>
+            <label class="btn btn-default" ng:model="timeWindow" btn-radio="300">5m</label>
             <label class="btn btn-default" ng:model="timeWindow" btn-radio="600">10m</label>
             <label class="btn btn-default" ng:model="timeWindow" btn-radio="3600">1h</label>
             <label class="btn btn-default" ng:model="timeWindow" btn-radio="7200">2h</label>
@@ -90,6 +100,7 @@
           <th>pkts/beacs/disass</th>
           <th>ssids</th>
           <th>owner/alias</th>
+          <th>tags</th>
         </tr>
       </thead>
       <tbody>
@@ -126,6 +137,9 @@
           </td>
           <td>
             {{host.user.owner || '-'}} / {{host.user.alias || '-'}}
+          </td>
+          <td>
+            {{host.user.tags || '-'}}
           </td>
         </tr>
       </tbody>

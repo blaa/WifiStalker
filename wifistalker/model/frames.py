@@ -69,7 +69,9 @@ class Frames(object):
             self.beacons_stored += 1
 
         # Update str
-        cache['avg_str'] = (cache['avg_str'] * 5.0 + frame['strength']) / 6.0
+        if frame['strength'] is not None:
+            # Can be none if it's our packet.
+            cache['avg_str'] = (cache['avg_str'] * 5.0 + frame['strength']) / 6.0
 
         if abs(cache['avg_str'] - cache['stored_str']) >= cfg['max_str_dev']:
             update_cache()

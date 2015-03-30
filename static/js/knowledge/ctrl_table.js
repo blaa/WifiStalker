@@ -11,14 +11,15 @@ app.controller("TableCtrl", function($scope, $http, $interval, $log) {
     $scope.refreshInterval = 10;
     $scope.refreshing = false;
 
-    $scope.snapshotName = '';
+    $scope.ssidFilter = [];
+    $scope.tagFilter = [];
 
     $scope.knowledge = null;
     $scope.sort = '-meta.running_str';
 
     var refreshPromise = null;
 
-    var debug_open = false; /* Turn true to disable */
+    var debug_open = true; /* Turn true to disable */
 
     /*
      * Callers / main functions
@@ -46,6 +47,8 @@ app.controller("TableCtrl", function($scope, $http, $interval, $log) {
         $scope.refreshing = true;
         $scope.loadKnowledge({
             'time_window': $scope.timeWindow,
+            'ssid_filter': $scope.ssidFilter,
+            'tag_filter': $scope.tagFilter,
             'sort': $scope.sort,
             'success': handle_success,
             'error': error
@@ -54,6 +57,9 @@ app.controller("TableCtrl", function($scope, $http, $interval, $log) {
 
     // Initial load
     $scope.refreshTable();
+
+    // FIXME, TODO, DEBUG 
+    $scope.openTab('Tagging', '', 'tagging');
 
     // Auto refresh
     $scope.$watch('refreshInterval', function (newVal, oldVal) {
