@@ -86,8 +86,9 @@ class Analyzer(object):
                     aggregate['ssid_probe'].append(ssid)
             else:
                 # Not Beacon, not probe, something else.
-                if ssid not in aggregate['ssid_other']:
-                    aggregate['ssid_other'].append(ssid)
+                pass
+                #if ssid not in aggregate['ssid_other']:
+                #    aggregate['ssid_other'].append(ssid)
                 """
                 if sender.meta['ap']:
                     # This is rather a beacon...

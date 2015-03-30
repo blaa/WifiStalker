@@ -31,7 +31,8 @@ def get_knowledge():
     if time_window:
         time_window = float(time_window)
 
-    knowledge = g.db.knowledge.sender_query(mac=mac, sort=sort, time_window=time_window)
+    knowledge = g.db.knowledge.sender_query(mac=mac, sort=sort, time_window=time_window,
+                                            ssid_filter=ssid_filter, tag_filter=tag_filter)
 
     for_web = []
     for sender in knowledge:

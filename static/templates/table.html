@@ -133,7 +133,6 @@
           <td>
             <span class="bla-probes" ng:repeat="ssid in host.aggregate.ssid_probe">{{ssid}}; </span>
             <span class="bla-beacons" ng:repeat="ssid in host.aggregate.ssid_beacon">{{ssid}}; </span>
-            <span class="bla-other" ng:repeat="ssid in host.aggregate.ssid_other">{{ssid}}; </span>
           </td>
           <td>
             {{host.user.owner || '-'}} / {{host.user.alias || '-'}}

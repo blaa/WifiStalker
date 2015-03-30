@@ -23,6 +23,8 @@ class Knowledge(object):
 
         self.knowledge.ensure_index('mac')
         self.knowledge.ensure_index('aggregate.last_seen')
+        self.knowledge.ensure_index('aggregate.ssid_probe')
+        self.knowledge.ensure_index('aggregate.ssid_beacon')
 
         # Presence snapshots
         self.snapshot = self.db['snapshot']
@@ -59,7 +61,8 @@ class Knowledge(object):
 
     ##
     # Sender knowledge
-    def sender_query(self, mac=None, sort='last_seen', time_window=None, advanced=None, count=None):
+    def sender_query(self, mac=None, sort='last_seen', time_window=None,
+                     ssid_filter=None, tag_filter=None, advanced=None, count=None):
         """Query the database for a sender by it's MAC address.
 
         If mac is None - return a list of all senders.
@@ -84,6 +87,20 @@ class Knowledge(object):
             where['aggregate.last_seen'] = {
                 '$gt': now - time_window
             }
+
+        if ssid_filter:
+            print "ADD REQUEST"
+            where['$or'] = [
+                {'aggregate.ssid_probe': {'$in': ssid_filter}},
+                {'aggregate.ssid_beacon': {'$in': ssid_filter}},
+            ]
+        if tag_filter:
+            print "ADD REQUEST"
+            where['user.tags'] = {
+                '$in': tag_filter
+            }
+
+        print where
 
         if advanced is not None:
             where.update(advanced)
