@@ -44,6 +44,9 @@ class Sender(object):
             for k, v in self.aggregate['tags_dst'].iteritems():
                 self.aggregate['tags_dst'][k] = defaultdict(lambda: 0, v)
 
+            # Convert list to set
+            self.user['tags'] = set(self.user['tags'])
+
         except KeyError:
             print "Invalid scheme version, available keys:"
             print db_entry.keys()
@@ -52,16 +55,19 @@ class Sender(object):
 
     def get_dict(self):
         "Get dictionary describing sender without special objects"
-        # Drop defaultdicts
+        # Drop defaultdicts and sets
         aggregate = self.aggregate.copy()
         aggregate['tags_dst'] = dict(aggregate['tags_dst'])
         for k, v in aggregate['tags_dst'].iteritems():
             aggregate['tags_dst'][k] = dict(v)
 
+        user = self.user.copy()
+        user['tags'] = list(user['tags'])
+
         return {
             'mac': self.mac,
             'version': self.version,
-            'user': self.user.copy(),
+            'user': user,
             'meta': self.meta.copy(),
             'stat': self.stat.copy(),
             'events': self.events[:],
@@ -87,7 +93,7 @@ class Sender(object):
                 'owner': None,
                 'notes': None,
                 'alias': None,
-                'tags': [],
+                'tags': set(),
             }
         else:
             assert hasattr(self, 'user')
@@ -130,12 +136,11 @@ class Sender(object):
             # All essids probed or beaconed
             'ssid_probe': [],
             'ssid_beacon': [],
-            'ssid_other': [],
 
             # Packet destinations broken by comm type.
             'tags_dst': defaultdict(lambda: defaultdict(lambda: 0)), # {MAC -> {FLAG->packet count}}
 
-            # Aggregated tags
+            # Aggregated frame-tags
             'tags': [],
         }
 
@@ -211,13 +216,28 @@ class SenderCache(object):
     def reset(self):
         "Reset cache"
         # Sender object cache
-        self.cache = {}
+
+        # Potentially modified
+        self.dirty_cache = {}
+
+        # Never modified after stored
+        self.clean_cache = {}
+
+    def __len__(self):
+        return len(self.dirty_cache)
 
     def get(self, mac):
         "Get sender from cache or from the DB - and then cache."
         # Cache
-        if mac in self.cache:
-            return self.cache[mac]
+        if mac in self.dirty_cache:
+            return self.dirty_cache[mac]
+        if mac in self.clean_cache:
+            sender = self.clean_cache[mac]
+            # Move to dirty cache
+            self.clean_cache.pop(mac)
+
+            self.dirty_cache[mac] = sender
+            return sender
 
         # DB
         res = self.db.knowledge.sender_query(mac=mac)
@@ -226,31 +246,36 @@ class SenderCache(object):
         else:
             assert len(res) == 1
             sender = res[0]
-            self.cache[mac] = sender
+            self.dirty_cache[mac] = sender
             return sender
 
-    def iteritems(self, *args, **kwargs):
-        return self.cache.iteritems(*args, **kwargs)
+    def iter_dirty_items(self, *args, **kwargs):
+        "Iter over dirty/modified/freshly get items"
+        for entry in self.dirty_cache.iteritems(*args, **kwargs):
+            yield entry
 
     def create(self, mac):
         "Create a new sender object"
         sender = Sender(mac)
-        self.cache[mac] = sender
+        self.dirty_cache[mac] = sender
         return sender
 
-    def store(self):
-        "Store each element in the cache, returning a list of failed objects"
+    def store(self, callback=None):
+        "Store each element in the dirty cache, returning a list of failed objects"
         correct = 0
         failed = []
-        for mac in self.cache.keys():
-            sender = self.cache[mac]
+        for mac, sender in self.dirty_cache.items():
             ret = self.db.knowledge.sender_store(sender)
             if ret is False:
                 failed.append(mac)
-                # Invalidate entry
-                self.cache.pop(mac)
+                # Invalidate entry completely
+                self.dirty_cache.pop(mac)
             else:
                 correct += 1
+                self.clean_cache[mac] = sender
+                self.dirty_cache.pop(mac)
+            if callback and correct % 2000 == 0:
+                callback()
         if failed:
             print "Stored sender cache. correct={0} failed={1}".format(correct, len(failed))
         return failed

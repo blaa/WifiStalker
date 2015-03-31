@@ -35,7 +35,6 @@ def get_knowledge():
     if time_window:
         time_window = float(time_window)
 
-    print "get knowledge, mac=", mac
     knowledge = g.db.knowledge.sender_query(mac=mac, sort=sort, time_window=time_window,
                                             ssid_filter=ssid_filter, tag_filter=tag_filter)
 
@@ -126,6 +125,7 @@ def tag_range():
     tags = data.get('tags', None)
     tags = _parse_tags(tags)
     tag_types = data.get('types', None)
+    untag = data.get('untag', False)
 
     assert tag_types in ['all', 'clients', 'aps']
 
@@ -158,7 +158,7 @@ def tag_range():
     # TODO: all_frames would be nice to be purgeable and events used eventually
     srcs = g.db.frames.all_in_range(range_from_local_stamp, range_to_local_stamp, min_strength, current=False)
 
-    altered_cnt = g.db.knowledge.sender_tag(srcs, tags, types=tag_types)
+    altered_cnt = g.db.knowledge.sender_tag(srcs, tags, types=tag_types, untag=untag)
     print "Tagged entries:", altered_cnt
 
     return jsonify({'OK': True, 'cnt': altered_cnt})

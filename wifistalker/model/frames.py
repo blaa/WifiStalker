@@ -106,7 +106,7 @@ class Frames(object):
 
     ##
     # Querying
-    def iterframes(self, current=True, src=None, since=None, sort='stamp'):
+    def iterframes(self, current=True, src=None, since=None, sort='stamp', limit=None):
         "Iterate over frames"
         if current:
             source = self.current_frames
@@ -120,7 +120,7 @@ class Frames(object):
 
         where = {}
         if since is not None:
-            where['stamp'] = {'$gte': since}
+            where['stamp'] = {'$gt': since}
         if src:
             if isinstance(src, list):
                 src = [s.lower() for s in src]
@@ -130,6 +130,9 @@ class Frames(object):
                 where['src'] = src
 
         frames = source.find(where).sort(sort, direction)
+        if limit is not None:
+            frames = frames[:limit]
+
         for frame in frames:
             yield frame
 

@@ -69,7 +69,7 @@ def _parse_arguments():
                    help="Add popular 5GHz channels")
 
     p.add_argument("-n", "--sniffer-name", dest="sniffer_name",
-                   action="store", type=int,
+                   action="store", type=str,
                    help="sniffer name/tag")
 
     p.add_argument("--no-hop", dest="enable_hopping",
@@ -94,6 +94,11 @@ def _parse_arguments():
 def action_sniff(db, args):
     "Run sniffing thread"
     from sniffer import Sniffer
+
+    if not args.sniffer_name:
+        from time import time
+        args.sniffer_name = str(int(time()))
+        print 'Sniffer name not given, using', args.sniffer_name
 
     sniffer = Sniffer(db,
                       args.interface,

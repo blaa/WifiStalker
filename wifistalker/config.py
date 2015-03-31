@@ -28,6 +28,13 @@ beacon_filter = {
     'max_time_between': 2 * 60,
 }
 
+analyzer = {
+    # Event ends if client is not visible for at least this time.
+    'event_gap': 10*60,
+
+    # For how much time a '+tag' is contagious.
+    'tag_virality': 5*60,
+}
 
 graph_relations = {
     'cache_time': 10 * 60,

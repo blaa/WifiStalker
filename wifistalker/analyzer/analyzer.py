@@ -9,6 +9,7 @@ from collections import defaultdict
 
 from wifistalker.model import Sender, SenderCache
 from wifistalker import Log, WatchDog
+from wifistalker import config
 
 class Analyzer(object):
     """Handle packet analysis.
@@ -20,6 +21,10 @@ class Analyzer(object):
 
         # Cache modified senders
         self.sender_cache = SenderCache(db)
+
+        # Context - for tagging
+        # sniffer name -> tag -> last seen timestamp
+        self.tag_context = defaultdict(lambda: {})
 
         # Logging
         self.log = Log(self.db, use_stdout=True, header='ANALYZE')
@@ -36,41 +41,43 @@ class Analyzer(object):
     def _analyze_frame(self, sender, frame):
         "Analyze a single frame and update sender object accordingly"
 
-        tags = set(frame['tags'])
+        frame_tags = set(frame['tags'])
 
         aggregate = sender.aggregate # Alias
         stat = sender.stat # Alias
+        stamp = frame['stamp'] # Alias
 
-        if aggregate['last_seen'] >= frame['stamp']:
+        if aggregate['last_seen'] >= stamp:
             # We already updated sender using this frame
             self.stats['already_analyzed'] += 1
             return
 
-        aggregate['last_seen'] = frame['stamp']
+        aggregate['last_seen'] = stamp
         if aggregate['first_seen'] == 0:
-            aggregate['first_seen'] = frame['stamp']
+            aggregate['first_seen'] = stamp
 
-        # Handle Tags
-        if tags:
+        # Handle frame tags
+        if frame_tags:
             x = set(aggregate['tags'])
-            x.update(tags)
+            x.update(frame_tags)
             aggregate['tags'] = list(x)
 
-        if 'ASSOC_REQ' in tags:
+        # Update stats based on frame_tags
+        if 'ASSOC_REQ' in frame_tags:
             stat['assoc_req'] += 1
-        elif 'ASSOC_RESP' in tags:
+        elif 'ASSOC_RESP' in frame_tags:
             stat['assoc_resp'] += 1
-        elif 'PROBE_REQ' in tags:
+        elif 'PROBE_REQ' in frame_tags:
             stat['probe_req'] += 1
-        elif 'PROBE_RESP' in tags:
+        elif 'PROBE_RESP' in frame_tags:
             stat['probe_resp'] += 1
-        elif 'DISASS' in tags:
+        elif 'DISASS' in frame_tags:
             stat['disass'] += 1
-        elif 'BEACON' in tags:
+        elif 'BEACON' in frame_tags:
             stat['beacons'] += 1
-        elif 'DATA' in tags:
+        elif 'DATA' in frame_tags:
             stat['data'] += 1
-        elif 'IP' in tags:
+        elif 'IP' in frame_tags:
             stat['ip'] += 1
 
         stat['all'] += 1
@@ -78,10 +85,10 @@ class Analyzer(object):
         # Handle SSIDs and destinations
         ssid = frame['ssid']
         if ssid:
-            if 'BEACON' in tags:
+            if 'BEACON' in frame_tags:
                 if ssid not in aggregate['ssid_beacon']:
                     aggregate['ssid_beacon'].append(ssid)
-            elif 'PROBE_REQ' in tags:
+            elif 'PROBE_REQ' in frame_tags:
                 if ssid not in aggregate['ssid_probe']:
                     aggregate['ssid_probe'].append(ssid)
             else:
@@ -102,7 +109,7 @@ class Analyzer(object):
 
 
         if frame['dst']:
-            sender.add_dst(frame['dst'], tags)
+            sender.add_dst(frame['dst'], frame_tags)
 
         if frame['strength']:
             sender.meta['running_str'] = (sender.meta['running_str'] * 10.0 + frame['strength']) / 11.0
@@ -130,9 +137,30 @@ class Analyzer(object):
         else:
             sender.meta['ap'] = False
 
+        ##
+        # Tag context update
+        # tags - tags from current frame.
+        sniffer = frame['sniffer']
+        tag_virality = config.analyzer['tag_virality']
+
+        if sender.meta['ap']:
+            # Update +tags to context
+            for tag in sender.user['tags']:
+                if tag.startswith('+'):
+                    self.tag_context[sniffer][tag] = stamp
+        else:
+            # Add tags currently in context into knowledge.
+            for tag, tag_stamp in self.tag_context[sniffer].items():
+                if tag_stamp + tag_virality < stamp:
+                    del self.tag_context[sniffer][tag]
+                    continue
+                if tag in sender.user['tags']:
+                    continue
+                sender.user['tags'].add('-' + tag[1:])
+
         """
         seen = {
-            'stamp': frame['stamp'],
+            'stamp': stamp,
             'dst': frame['dst'],
             'freq': frame['freq'], # TODO: Remove?
             'str': frame['strength'],
@@ -145,16 +173,17 @@ class Analyzer(object):
     def _analysis_loop(self, current, since):
         "Analyze until all senders got updated"
         only_src_macs = [] # Any at start
-        last_stamp = None
         frames_total = 0
 
         # Repeat this iterator until all senders are correctly saved.
+        cnt = 0
         while True:
+            last_stamp = None
             iterator = self.db.frames.iterframes(current=current,
                                                  since=since,
-                                                 src=only_src_macs)
+                                                 src=only_src_macs,
+                                                 limit=500000)
             # Go throught the iterator
-            cnt = 0
             for cnt, frame in enumerate(iterator):
                 src = frame['src']
                 sender = self.sender_cache.get(src)
@@ -162,9 +191,14 @@ class Analyzer(object):
                     sender = self.sender_cache.create(src)
                 self._analyze_frame(sender, frame)
                 last_stamp = frame['stamp']
-                if (cnt+1) % 10000 == 0:
+                if (cnt+1) % 20000 == 0:
                     now = time()
-                    print "Done {0} frames, last is {1} seconds ago;".format(cnt+1, now-last_stamp)
+
+                    seconds = int(now - last_stamp)
+                    hours = seconds / 60 / 60
+                    print "Done {0} frames, senders={1} last is {2} hours ago;".format(cnt+1,
+                                                                                       len(self.sender_cache),
+                                                                                       hours)
                     self.watchdog.dontkillmeplease()
             s = "Analyzed {0} frames, last stamp is {1}; Analyzed total={2[analyzed]}"
             frames_total += cnt
@@ -172,14 +206,16 @@ class Analyzer(object):
 
             if last_stamp is None:
                 # No frames whatsoever
+                print 'Reached end of frames - exiting'
                 return None
 
             # Update statics before storing
-            for mac, sender in self.sender_cache.iteritems():
+            for mac, sender in self.sender_cache.iter_dirty_items():
                 self._update_static(sender)
+                self.watchdog.dontkillmeplease()
 
             # Try to save
-            only_src_macs = self.sender_cache.store()
+            only_src_macs = self.sender_cache.store(lambda: self.watchdog.dontkillmeplease())
 
             if not only_src_macs:
                 # Everything saved succesfully
@@ -189,24 +225,35 @@ class Analyzer(object):
             # written.
             self.log.info('Optimistic locking failed, analysis retry for %r', only_src_macs)
 
+            # Continue `while True' loop until all are saved.
+
 
     def run_full(self):
         "Full data drop + reanalysis"
 
-        # TODO - Drop in soft mode
-        print 'Dropping existing knowledge in...'
+        print 'Dropping existing knowledge (leaving user data) in...'
         for i in range(3, 0, -1):
             print i, "second/s"
             sleep(1)
-        #self.db.knowledge.sender_drop()
 
+        print 'Soft dropping knowledge'
         senders = self.db.knowledge.sender_query()
         for sender in senders:
             sender.reset(hard=False)
             self.db.knowledge.sender_store(sender)
+            self.watchdog.dontkillmeplease()
 
         # Once
-        self._analysis_loop(current=False, since=0)
+        print 'Entering analyze loop'
+        #since = time() - 60*60*3 # FIXME SHOULD BE ZERO, DEBUG
+        since = 0
+        while True:
+            ret = self._analysis_loop(current=False, since=since)
+            if ret is not None:
+                since, frames_total = ret
+            else:
+                # End of work
+                break
 
 
     def run_continuous(self):

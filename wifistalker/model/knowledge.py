@@ -89,7 +89,7 @@ class Knowledge(object):
             ]
         if tag_filter:
             where['user.tags'] = {
-                '$in': tag_filter
+                '$all': tag_filter
             }
 
         if advanced is not None:
@@ -157,7 +157,7 @@ class Knowledge(object):
         senders = self.sender_query()
 
 
-    def sender_tag(self, srcs, tags, types=None):
+    def sender_tag(self, srcs, tags, types=None, untag=False):
         u"Add tags to senders"
         where = {}
         if types not in [None, 'all']:
@@ -170,9 +170,18 @@ class Knowledge(object):
 
         where['mac'] = {'$in': srcs}
 
-        operation = {
-            '$addToSet': { 'user.tags': { '$each': tags } },
-            '$inc': {'version': 1},
-        }
+        if untag is False:
+            operation = {
+                '$addToSet': { 'user.tags': { '$each': tags } }
+            }
+        else:
+            operation = {
+                '$pullAll': { 'user.tags': tags }
+            }
+
+        # Increment version
+        operation['$inc'] = {'version': 1}
+
+        print operation
         ret = self.knowledge.update(where, operation, multi=True)
         return ret['n']
