@@ -133,3 +133,23 @@ class Frames(object):
         for frame in frames:
             yield frame
 
+
+    def all_in_range(self, since, until, min_strength=None, current=True):
+        "Get all srcs/mac addresses in a time range"
+        if current:
+            source = self.current_frames
+        else:
+            source = self.all_frames
+
+        where = {}
+        where['$and'] = [
+            {'stamp': {'$gte': since}},
+            {'stamp': {'$lte': until}},
+        ]
+
+        if min_strength is not None:
+            where['$and'].append({'strength': {'$gte': min_strength}})
+
+        srcs = source.find(where).distinct('src')
+        return srcs
+

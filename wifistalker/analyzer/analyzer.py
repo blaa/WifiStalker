@@ -113,9 +113,11 @@ class Analyzer(object):
         pts = 0
         if stat['probe_resp'] > stat['probe_req']:
             pts += 1
-        if (stat['beacons'] / stat['all'] * 100) > 50:
+        if (100.0 * stat['beacons'] / stat['all']) > 50:
             pts += 1
-        if stat['beacons'] == 0:
+        if (100.0 * stat['beacons'] / stat['all']) > 80:
+            pts += 1
+        if stat['beacons'] < 10:
             pts -= 1
         pts += len(aggregate['ssid_beacon'])
         pts -= len(aggregate['ssid_probe'])

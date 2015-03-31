@@ -1,9 +1,5 @@
 # -*- mode: org coding: utf-8 -*-
 
-(set-default-font "Inconsolata 15")
-(color-theme-jsc-light)
-
-
 See README.md for generic description + HOWTO.
 
 * TODOs / Plan:

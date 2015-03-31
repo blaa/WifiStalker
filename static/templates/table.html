@@ -26,14 +26,14 @@
       <div class="form-group">
         <div class="input-group">
           <input name="ssidFilter" placeholder="SSIDs"
-                 ng:list=", " ng:trim="true"
+                 ng:list=" " ng:trim="true"
                  class="form-control" ng:model="ssidFilter"></input>
 
         </div>
 
         <div class="input-group">
           <input name="tagFilter" placeholder="TAGs"
-                 ng:list=", " ng:trim="true"
+                 ng:list=" " ng:trim="true"
                  class="form-control" ng:model="tagFilter"></input>
         </div>
       </div>
@@ -127,7 +127,7 @@
           </td>
 
           <td>{{host.meta.vendor}}</td>
-          <td>{{host.aggregate.last_seen*1000 | date:'HH:mm:ss'}}</td>
+          <td>{{host.aggregate.last_seen*1000 | date:'yyyy-MM-dd HH:mm:ss'}}</td>
           <td>{{host.meta.running_str | number: 3}}</td>
           <td>{{host.stat.all}} / {{host.stat.beacons}} / {{host.stat.disass}}</td>
           <td>

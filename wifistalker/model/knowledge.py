@@ -4,7 +4,6 @@
 import re
 from time import time
 
-#from presence import PresenceSnapshot
 from sender import Sender
 
 class Knowledge(object):
@@ -25,11 +24,6 @@ class Knowledge(object):
         self.knowledge.ensure_index('aggregate.last_seen')
         self.knowledge.ensure_index('aggregate.ssid_probe')
         self.knowledge.ensure_index('aggregate.ssid_beacon')
-
-        # Presence snapshots
-        self.snapshot = self.db['snapshot']
-        self.snapshot.ensure_index('name')
-
 
         # Resolving vendor names
         # TODO: Should be loaded once into Mongo and cached from there.
@@ -89,18 +83,14 @@ class Knowledge(object):
             }
 
         if ssid_filter:
-            print "ADD REQUEST"
             where['$or'] = [
                 {'aggregate.ssid_probe': {'$in': ssid_filter}},
                 {'aggregate.ssid_beacon': {'$in': ssid_filter}},
             ]
         if tag_filter:
-            print "ADD REQUEST"
             where['user.tags'] = {
                 '$in': tag_filter
             }
-
-        print where
 
         if advanced is not None:
             where.update(advanced)
@@ -166,29 +156,23 @@ class Knowledge(object):
         "Soft cleanup without removing user data (alias, name)"
         senders = self.sender_query()
 
-    ##
-    # Aliases
-    # Those were helper functions; faster but I doubt that's important
-    # This functions were moved to the Sender instance
-    """
-    def set_name(self, mac, alias, owner):
-        self.db.knowledge.update(
-            {'mac': mac}, {
-                '$set': {'alias': alias, 'owner': owner},
-                '$inc': {'version': 1}
-            }
-        )
-        print "Updated"
-    """
 
-    ##
-    # Presence knowledge
-    def presence_query(self, name, time_range=None):
-        pass
+    def sender_tag(self, srcs, tags, types=None):
+        u"Add tags to senders"
+        where = {}
+        if types not in [None, 'all']:
+            if types == 'clients':
+                where['meta.ap'] = False
+            elif types == 'aps':
+                where['meta.ap'] = True
+            else:
+                assert False, "Invalid `types' argument"
 
-    def presence_store(self, name, since=60):
-        pass
+        where['mac'] = {'$in': srcs}
 
-    def presence_remove(self, presence_lst):
-        for presence in presence_lst:
-            pass
+        operation = {
+            '$addToSet': { 'user.tags': { '$each': tags } },
+            '$inc': {'version': 1},
+        }
+        ret = self.knowledge.update(where, operation, multi=True)
+        return ret['n']
