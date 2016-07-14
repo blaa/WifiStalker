@@ -34,6 +34,9 @@ analyzer = {
 
     # For how much time a '+tag' is contagious.
     'tag_virality': 5*60,
+
+    # How much after a suspend/start to ignore tagging
+    'suspend_gap': 10,
 }
 
 graph_relations = {

@@ -48,7 +48,7 @@ Knowledge consists of:
 -   Investigating details about each sniffed node.
 -   See screenshots in docs/ for a feel.
 
-## Marauder's Map
+## Marauder's Map - TODO/Not finished/Removed in development
 
 -   Select point on map and store information about surrounding
     stations (their macs and average strength from a time window)
@@ -57,14 +57,17 @@ Knowledge consists of:
 
 # How to use
 
+- Install application dependencies (scapy, flask, pymongo, ipython, faulthandler)
 - Start Mongo
 - Create monitoring interface 
   iwconfig wlan0 mode monitor or airmon-ng start wlan1
 - Download oui.txt 
   wget <http://www.ieee.org/netstorage/standards/oui.txt>
 - Download OpenWlanMAP:
-  wget --no-check-certificate 'https://openwlanmap.org/db.tar.bz2'
-  ./wifistalker --load-geo db/;
+  Point your browser at https://openwlanmap.org/ and download, or try:
+  wget --no-check-certificate https://openwlanmap.org/db/db.tar.bz2
+  tar -jxvf db.tar.bz2
+  ./stalk.py --load-geo db/db.csv
 - Start sniffing process wifistalker -s
   You can name it with -l sniffer<sub>name</sub>. Not really usable at this
   point, but useful to distinguish parallel sniffers.

@@ -25,6 +25,9 @@ class Analyzer(object):
         # Context - for tagging
         # sniffer name -> tag -> last seen timestamp
         self.tag_context = defaultdict(lambda: {})
+        # Filter invalid timestamps at point of a suspend
+        self.last_stamp = 0
+        self.ignore_until = 0
 
         # Logging
         self.log = Log(self.db, use_stdout=True, header='ANALYZE')
@@ -46,6 +49,14 @@ class Analyzer(object):
         aggregate = sender.aggregate # Alias
         stat = sender.stat # Alias
         stamp = frame['stamp'] # Alias
+
+
+        # Check for suspend time-gap.
+        if stamp - self.last_stamp > config.analyzer['tag_virality']:
+            self.ignore_until = stamp + config.analyzer['suspend_gap']
+            print "Suspend detected, ignoring until", self.ignore_until
+        self.last_stamp = stamp
+
 
         if aggregate['last_seen'] >= stamp:
             # We already updated sender using this frame
@@ -120,9 +131,9 @@ class Analyzer(object):
         pts = 0
         if stat['probe_resp'] > stat['probe_req']:
             pts += 1
-        if (100.0 * stat['beacons'] / stat['all']) > 50:
+        if (100.0 * (stat['beacons'] + stat['probe_resp']) / stat['all']) > 50:
             pts += 1
-        if (100.0 * stat['beacons'] / stat['all']) > 80:
+        if (100.0 * (stat['beacons'] + stat['probe_resp']) / stat['all']) > 80:
             pts += 1
         if stat['beacons'] < 10:
             pts -= 1
@@ -143,20 +154,32 @@ class Analyzer(object):
         sniffer = frame['sniffer']
         tag_virality = config.analyzer['tag_virality']
 
-        if sender.meta['ap']:
-            # Update +tags to context
-            for tag in sender.user['tags']:
-                if tag.startswith('+'):
-                    self.tag_context[sniffer][tag] = stamp
-        else:
-            # Add tags currently in context into knowledge.
-            for tag, tag_stamp in self.tag_context[sniffer].items():
-                if tag_stamp + tag_virality < stamp:
-                    del self.tag_context[sniffer][tag]
-                    continue
-                if tag in sender.user['tags']:
-                    continue
-                sender.user['tags'].add('-' + tag[1:])
+
+        # Ignore tagging it we might be fresh after a suspend/restore.
+        if stamp > self.ignore_until:
+            if sender.meta['ap']:
+                # Update +tags to context
+                for tag in sender.user['tags']:
+                    if tag.startswith('+'):
+                        self.tag_context[sniffer][tag] = stamp
+            else:
+                # Add tags currently in context into knowledge.
+                for tag, tag_stamp in self.tag_context[sniffer].items():
+                    if tag_stamp + tag_virality < stamp:
+                        del self.tag_context[sniffer][tag]
+                        continue
+
+                    new_tag = '-' + tag[1:]
+                    if tag in sender.user['tags'] or new_tag in sender.user['tags']:
+                        continue
+                    #print "ADDING TAG", '-' + tag[1:], self.tag_context
+                    if (('-COI' in sender.user['tags'] and new_tag == '-woloska44') or
+                        ('-woloska44' in sender.user['tags'] and new_tag == '-COI')):
+                        print "WARNING"
+                        print sender
+                        print self.tag_context
+                        print frame
+                    sender.user['tags'].add(new_tag)
 
         """
         seen = {

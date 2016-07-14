@@ -183,5 +183,6 @@ class Knowledge(object):
         operation['$inc'] = {'version': 1}
 
         print operation
+
         ret = self.knowledge.update(where, operation, multi=True)
         return ret['n']

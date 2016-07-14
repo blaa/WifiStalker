@@ -13,7 +13,7 @@ api = Blueprint('api_knowledge', __name__)
 
 def _parse_tags(tags):
     "Parse tags from a space-separated string"
-    tags = re.findall('([+!@#$%^&*()0-9a-zA-Z_]+ ?)', tags, flags=re.UNICODE)
+    tags = re.findall('([-+!@#$%^&*()0-9a-zA-Z_]+ ?)', tags, flags=re.UNICODE)
     tags = [tag.strip() for tag in tags]
     return tags
 

@@ -2,6 +2,13 @@
 
 See README.md for generic description + HOWTO.
 
+* Useful mongodb operations
+** Remove all specified tags:
+   db.knowledge.update({}, {$pullAll: {'user.tags': ['-CORPORATIONNAME', '-streetadress']}}, {multi:true})
+   
+** Get tag list:
+   db.knowledge.distinct('user.tags')
+
 * TODOs / Plan:
 ** DONE Cleanup code, publish on github, add license
 

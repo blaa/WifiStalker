@@ -147,9 +147,9 @@ class Sender(object):
     def __repr__(self):
         name = self.mac if self.user['alias'] is None else self.user['alias']
         s = '<Sender %s pkts=%d ap=%s>' % (
-            name,
+            repr(name),
             self.stat['all'],
-            self.meta['ap']
+            repr(self.meta['ap'])
         )
         return s
 

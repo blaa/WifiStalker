@@ -141,7 +141,8 @@ class PacketParser(object):
                 ssid = p.info
                 assert p.len == len(ssid)
                 if data['ssid'] != None:
-                    self.log.info("SSID wasn't None before setting new value ({0} - {1})" % (data['ssid'], ssid))
+                    self.log.info("SSID wasn't None before setting new value ({0} - {1})" % (data['ssid'],
+                                                                                             repr(ssid)))
                 data['ssid'] = self._sanitize(ssid)
                 continue
 
@@ -155,7 +156,8 @@ class PacketParser(object):
                 ssid = p.info
                 if p.len != len(ssid):
                     if data['ssid'] is None:
-                        print "  Ignoring ssid, wrong length", ssid, d_type, d_subtype, "LEN IS/GIVEN", len(ssid), p.len
+                        print "  Ignoring ssid, wrong length", repr(ssid), d_type, d_subtype,
+                        print "LEN IS/GIVEN", len(ssid), p.len
                     continue
                 if ssid and data['ssid'] is None:
                     ssid = self._sanitize(ssid)
@@ -237,7 +239,7 @@ class PacketParser(object):
             broadcast = True
         # Basic data
         data = {
-            'stamp': time(),
+            'stamp': p.time,
             'stamp_utc': datetime.datetime.utcnow(),
             'src': mac_source,
             'dst': mac_dst,
