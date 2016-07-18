@@ -18,7 +18,6 @@ class Knowledge(object):
 
         # Aggregated data about a specific MAC - a knowledge.
         self.knowledge = self.db['knowledge']
-        self.knowledge.write_concern = {'w': 1}
 
         self.knowledge.ensure_index('mac')
         self.knowledge.ensure_index('aggregate.last_seen')

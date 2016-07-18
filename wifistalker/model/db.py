@@ -16,10 +16,10 @@ class DB(object):
     "Link to MongoDB + model factory"
 
     def __init__(self, db_conn, db_name):
-        from pymongo import Connection
+        from pymongo import MongoClient
 
         print "Opening MongoDB connection"
-        self.conn = Connection(host=db_conn)
+        self.conn = MongoClient(host=db_conn)
         self.db = self.conn[db_name]
 
         # Open subcollections
