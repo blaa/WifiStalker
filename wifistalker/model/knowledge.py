@@ -51,7 +51,6 @@ class Knowledge(object):
         vendor = mac.replace(':', '')[:6]
         return self.vendors.get(vendor.upper(), 'unknown').strip()
 
-
     ##
     # Sender knowledge
     def sender_query(self, mac=None, sort='last_seen', time_window=None,
