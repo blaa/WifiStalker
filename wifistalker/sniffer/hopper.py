@@ -39,7 +39,7 @@ class Hopper(object):
         self.wifi = pythonwifi.Wireless(self.base_interface)
 
 
-    def configure(self, use_24=True, use_pop5=False):
+    def configure(self, use_24=True, use_pop5=False, channels=None):
         # TODO: Optimize? Fix - add rest, + 5GHz option
 
         self.freqs = {
@@ -76,9 +76,15 @@ class Hopper(object):
             36, 40, 44, 48
         ]
 
-        self.channels = self.channels_24 if use_24 else []
-        if use_pop5:
-            self.channels += self.channels_5pop
+        if channels is None:
+            self.channels = self.channels_24 if use_24 else []
+            if use_pop5:
+                self.channels += self.channels_5pop
+        else:
+            self.channels = channels
+
+        self.log.info("Hopping on the following channels: " +
+                      ", ".join(str(ch) for ch in self.channels))
 
         if not self.channels:
             print "ERROR: No channels selected for hopping"

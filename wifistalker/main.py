@@ -68,6 +68,10 @@ def _parse_arguments():
                    action="store_true", default=False,
                    help="Add popular 5GHz channels")
 
+    p.add_argument("--channels",
+                   action="store", default=None,
+                   help="Comma separated list of channels in order of traversal")
+
     p.add_argument("-n", "--sniffer-name", dest="sniffer_name",
                    action="store", type=str,
                    help="sniffer name/tag")
@@ -100,13 +104,19 @@ def action_sniff(db, args):
         args.sniffer_name = str(int(time()))
         print 'Sniffer name not given, using', args.sniffer_name
 
+    if args.channels is not None:
+        channels = [int(ch) for ch in args.channels.split(',')]
+    else:
+        channels = None
+
     sniffer = Sniffer(db,
                       args.interface,
                       args.related_interface,
                       sniffer_name=args.sniffer_name,
                       enable_hopping=args.enable_hopping,
                       use_24=args.use_24,
-                      use_pop5=args.use_pop5)
+                      use_pop5=args.use_pop5,
+                      channels=channels)
     sniffer.run()
 
 def action_analyze(db, args):

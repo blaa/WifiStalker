@@ -18,7 +18,7 @@ class Sniffer(object):
     "Channel hopping, packet sniffing, parsing and finally storing"
 
     def __init__(self, db, interface, related_interface, sniffer_name, enable_hopping,
-                 use_24=True, use_pop5=False):
+                 use_24=True, use_pop5=False, channels=None):
         self.db = db
         self.sniffer_name = sniffer_name
         self.interface = interface
@@ -42,7 +42,9 @@ class Sniffer(object):
         # Submodules
         self.packet_parser = PacketParser(self.log)
         self.hopper = Hopper(self.log, interface, related_interface)
-        ret = self.hopper.configure(use_24=use_24, use_pop5=use_pop5)
+        ret = self.hopper.configure(use_24=use_24,
+                                    use_pop5=use_pop5,
+                                    channels=channels)
         if ret is False:
             sys.exit(1)
 
