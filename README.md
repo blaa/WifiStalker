@@ -58,11 +58,10 @@ Knowledge consists of:
 # How to use
 
 - Install application dependencies (scapy, flask, pymongo, ipython, faulthandler)
-- Start Mongo
+- Start Mongo (Prefer 3.x version with WiredTiger and compression)
 - Create monitoring interface 
   iwconfig wlan0 mode monitor or airmon-ng start wlan1
-- Download oui.txt 
-  wget <http://www.ieee.org/netstorage/standards/oui.txt>
+- Download oui.txt or uncompress and use misc/oui.txt.bz2)
 - Download OpenWlanMAP:
   Point your browser at https://openwlanmap.org/ and download, or try:
   wget --no-check-certificate https://openwlanmap.org/db/db.tar.bz2
